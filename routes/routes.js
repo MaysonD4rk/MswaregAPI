@@ -18,7 +18,13 @@ router.get('/findPub/:id', HomeController.findPubById);
 router.get('/listMsgs/:offset', HomeController.sendMsgList);
 router.get('/searchMsgList/:offset/:wildcard', HomeController.searchMsgList);
 router.get('/searchUser/:wildcard', HomeController.searchUser);
-router.get('/searchPost/:offset/:wildcard',HomeController.searchPost)
+router.get('/searchPost/:offset/:wildcard',HomeController.searchPost);
+router.get('/listFeedbacks/:userId/:offset', HomeController.listFeedbacks);
+router.get('/listReports/:offset', HomeController.listReports);
+router.get('/getReports/:ideaId', HomeController.getReportsByIdeaid);
+router.get('/getFeedback/:id', HomeController.getFeedbackById);
+router.post('/sendReport', HomeController.sendReport);
+router.post('/sendFeedback', HomeController.sendFeedback);
 router.post('/writeMsg', HomeController.writeMsg);
 router.post('/donateCredits', HomeController.donateCredits);
 router.get('/listDonates/:pubId', HomeController.listDonates);
@@ -33,5 +39,7 @@ router.put('/updatePhotoProfile', UserController.updatePhotoProfile)
 router.put('/updateIdeaPhoto', HomeController.updateIdeaPhoto)
 router.put('/updateInfo', UserController.updateInfo)
 router.put('/updateNotifications', UserController.updateNotifications)
+router.put('/disableIdea', HomeController.disableIdea);
+router.put('/releaseIdea', HomeController.releaseIdea);
 
 module.exports = router

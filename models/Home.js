@@ -9,7 +9,7 @@ class Home {
         if (pubContent.title != undefined && pubContent.ideaSummary != undefined && pubContent.mainIdea != undefined && pubContent.categoryId != undefined) {
            
             try {
-                var result = await knex.insert({ userId: pubContent.userId, categoryId: pubContent.categoryId, createdAt: new Date(), initialAmountRequired: pubContent.initialAmountRequired }).table('gamesideas');
+                var result = await knex.insert({ userId: pubContent.userId, categoryId: pubContent.categoryId, createdAt: new Date(), initialAmountRequired: pubContent.initialAmountRequired, isActive: 1 }).table('gamesideas');
                 
                 await knex.insert({ ideaId: result[0], title: pubContent.title, ideaSummary: pubContent.ideaSummary, mainIdea: pubContent.mainIdea }).table('gamesideascontent');
                 pubContent.images.forEach(async (url) => {
@@ -41,7 +41,7 @@ class Home {
             LikedByYou: `SELECT convert( ideaImage using utf8) as imageUrl, gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
                         right join gamesideas on gamesideas.id = ideaId
                         left JOIN gameideainteraction on gamesideascontent.ideaId = gameideainteraction.gameIdeaId
-                        where gameideainteraction.userId = ${userId}
+                        where gameideainteraction.userId = ${userId} AND gamesideas.isActive != 0
                         order by liked, likedAt DESC
                         limit 8 offset ${offset}
                             ;`,
@@ -50,7 +50,7 @@ class Home {
             SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
             left join gameideainteraction on gameideainteraction.gameIdeaId = ideaId
             right join gamesideas on gamesideas.id = ideaId
-            where liked is null OR gameideainteraction.userId <> ${userId}
+            where liked is null OR gameideainteraction.userId <> ${userId} AND gamesideas.isActive != 0
             order by createdAt desc limit 8 offset ${offset}
                             ;
             `,
@@ -60,6 +60,7 @@ class Home {
             FROM mswareg.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
+            where gamesIdeas.isActive != 0
             group by gameIdeaId order by likes ASC limit 8 offset ${offset}
                             ;
             `,
@@ -68,18 +69,21 @@ class Home {
             FROM mswareg.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
+            where gamesIdeas.isActive != 0
             group by gameIdeaId order by likes DESC limit 8 offset ${offset}
                             ;`,
 
             older: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
+                    where gamesIdeas.isActive != 0
                     order by createdAt ASC limit 8 offset ${offset}
                             ;`,
 
             mostRecent: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
+                    where gamesIdeas.isActive != 0
                     order by createdAt DESC limit 8 offset ${offset}
                             ;`,
 
@@ -87,6 +91,7 @@ class Home {
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
+                            where gamesIdeas.isActive != 0
                             order by title desc limit 8 offset ${offset}
                             ;
                             `,
@@ -95,28 +100,33 @@ class Home {
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
+                            where gamesIdeas.isActive != 0
                             order by title ASC limit 8 offset ${offset}
                             ;`,
 
             MostInvested: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
+                            where gamesIdeas.isActive != 0
                             group by ideaId order by investmentFilter DESC limit 8 offset ${offset}
                             ;`,
             
             BitInvested: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
+                            where gamesIdeas.isActive != 0
                             group by ideaId order by investmentFilter ASC limit 8 offset ${offset}
                             ;`,
             
             lowerInvestmentRequired: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
+                                      where gamesIdeas.isActive != 0
                                       order by initialAmountRequired ASC limit 8 offset ${offset}
                             ;`,
             
             mostInvestmentRequired: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
+                                      where gamesIdeas.isActive != 0
                                       order by initialAmountRequired DESC 
                                       limit 8 offset ${offset}
                             ;`
@@ -132,6 +142,7 @@ class Home {
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
+                            where gamesIdeas.isActive != 0
                             limit 8 offset ${offset}
                             ;`);
 
@@ -194,7 +205,7 @@ class Home {
                 break;
         }
 
-        console.log(filter)
+        
 
         if (!!filter) {
 
@@ -219,24 +230,24 @@ class Home {
     }
 
     async findOnePub(id){
-
+        
         var finalResult = {}
         try {
             
-            let result = await knex.select("*").where({ id }).table('gamesideas');
-            let result2 = await knex.raw(`SELECT ideaId, convert(mainIdea using utf8) as mainIdea, title, ideaSummary from gamesideascontent where ideaId = ${result[0].id}; `)
-            let getImages = await knex.raw(`SELECT convert(url using utf8) as url from images where ideaIdRef = ${result[0].id}; `)
+            let result = await knex.raw(`select id, userId, categoryId, createdAt, convert(ideaImage using utf8) as mainImg from gamesideas where id = ${id}`);
+            let result2 = await knex.raw(`SELECT ideaId, convert(mainIdea using utf8) as mainIdea, title, ideaSummary from gamesideascontent where ideaId = ${result[0][0].id}; `)
+            let getImages = await knex.raw(`SELECT convert(url using utf8) as url from images where ideaIdRef = ${result[0][0].id}; `)
 
-            finalResult.id = result[0].id;
-            finalResult.userId = result[0].userId;            
+            finalResult.id = result[0][0].id;
+            finalResult.userId = result[0][0].userId;            
+            finalResult.categoryId = result[0][0].categoryId;          
+            finalResult.createdAt = result[0][0].createdAt;
+            finalResult.mainImg = result[0][0].mainImg
             finalResult.title = result2[0][0].title;
             finalResult.ideaSummary = result2[0][0].ideaSummary;
             finalResult.mainIdea = result2[0][0].mainIdea;
-            finalResult.categoryId = result[0].categoryId;
-            finalResult.raisedMoney = result[0].raisedMoney;            
-            finalResult.createdAt = result[0].createdAt;
             finalResult.images = getImages[0];
-            console.log(finalResult.images)
+            
 
 
             return {status: true, finalResult};
@@ -274,10 +285,10 @@ class Home {
 
     async donateCredits(userId, projectId, credits){
 
-        console.log(userId)
+        
 
         if (userId != undefined && projectId != undefined ) {
-            console.log("id é: "+userId)
+            
             try {
                 await knex.insert({ userId: userId, investment: credits, gameIdeaId: projectId, createdAt: new Date() }).table('investments');
                 return { status: true, msg: "doado com sucesso" }
@@ -340,7 +351,7 @@ class Home {
     }
 
     async searchPost(wildcard, offset){
-        console.log(wildcard)
+        
         try {
 
             let result = await knex.raw(`SELECT count(gameideainteraction.liked) as likes ,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
@@ -355,7 +366,7 @@ class Home {
                             limit 8 offset ${offset}
                             ;`);
 
-            console.log(result[0])
+                            
 
             if (result[0].length > 0) {
                 return { status: true, row: result[0] }
@@ -367,6 +378,120 @@ class Home {
             return { status: false, error }
         }
     }
+
+    async sendReport(userId, ideaId, reportMsg, categorieReport){
+        console.log('chegou aqui!')
+
+        try {
+            await knex.insert({ ideaId, userId, categorieReport, reportMsg, createdAt: new Date() }).table('reports')
+            return {status: true}
+        } catch (error) {
+            console.log(error)
+            return {status: false, error}
+        }
+    }
+
+    async sendFeedback(userId, ideaId, feedbackMsg){
+        console.log(userId, ideaId, feedbackMsg)
+        try {
+            let result = await knex.insert({ ideaId, userId, feedbackMsg, createdAt: new Date() }).table('feedbacks')
+            console.log(result)
+            return { status: true }
+        } catch (error) {
+            console.log(error)
+            return { status: false, error }
+        }
+    }
+
+
+    async listReports(offset){
+        try {
+            let reportList = await knex.raw(`
+            SELECT reports.ideaId, categorieReport, reportMsg, createdAt, gamesideascontent.title, count(reports.ideaId) as reports FROM mswareg.reports
+ inner join gamesideascontent on gamesideascontent.ideaId = reports.ideaId
+            group by ideaId, categorieReport
+            order by reports desc
+            limit 10 offset ${offset}
+            ;
+            `)
+            return { status: true, result: reportList }
+        } catch (error) {
+            return {status: false, error}
+        }
+    }
+    
+    async getReportsByIdeaid(ideaId) {
+        ideaId = parseInt(ideaId)
+        try {
+            const reports = await knex.select('*').where({ideaId}).table('reports')
+            
+            return {status: true, result: reports}
+        } catch (error) {
+            return { status: false, error }
+
+        }
+    }
+
+    async listFeedbacks(userId, offset){
+        try {
+            const feedbacks = await knex.raw(`SELECT feedbacks.id, title, gamesideas.id as gameideaId, gamesideas.userId, categoryId, feedbacks.userId as userFeedback,username, feedbackMsg, feedbacks.createdAt FROM mswareg.gamesideas
+                    inner join feedbacks on feedbacks.ideaId = gamesideas.id
+                    inner join users on feedbacks.userId = users.id
+                    inner join gamesideascontent on feedbacks.ideaId = gamesideascontent.ideaId
+                    where gamesideas.userId = ${userId}
+                    order by feedbacks.createdAt DESC
+                    limit 10 offset ${offset}
+                    ;`)
+            return {status: true, result: feedbacks}
+        } catch (error) {
+            
+        }
+    }
+
+
+    async getFeedbackById(id){
+        
+        try {
+            const list = await knex.raw(`
+                SELECT feedbacks.id as id, title,users.username, feedbacks.ideaId, feedbackMsg, feedbacks.createdAt FROM mswareg.feedbacks
+                inner join users on users.id = feedbacks.userId
+                inner join gamesideascontent on gamesideascontent.ideaId = feedbacks.ideaId
+                where feedbacks.id = ${id}
+                ;
+            `)
+            return {status: true, result: list}
+        } catch (error) {
+            return {status: false, error}
+        }
+
+    }
+
+
+    async disableIdea(ideaId){
+        try {
+            await knex.update({ isActive: 0 }).where({ id: ideaId }).table('gamesideas');
+            await knex.where({ideaId}).delete().table('reports')
+            console.log('deu certo')
+            return {status: true}
+        } catch (error) {
+            console.log(error)
+            return {status: false, error}
+        }
+    }
+
+    async releaseIdea(ideaId) {
+        try {
+            await knex.update({ isActive: 1 }).where({ id: ideaId }).table('gamesideas');
+            await knex.where({ ideaId }).delete().table('reports')
+            console.log('deu certo')
+            return { status: true }
+        } catch (error) {
+            console.log(error)
+            return { status: false, error }
+        }
+    }
+
+
 
 
 }

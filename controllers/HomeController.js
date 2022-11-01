@@ -26,9 +26,10 @@ class HomeController{
     }
 
     async findPubById(req, res){
-        var id = req.params.id
+        let id = req.params.id
         try {
             var result = await Home.findOnePub(id);
+            
             res.status(200)
             return res.json({status: 200, pubData: result.finalResult });
             
@@ -92,14 +93,14 @@ class HomeController{
     async writeMsg(req, res){
         var { userId, recipientName, msg } = req.body;
 
-        console.log(userId)
+        
 
         var recipientId;
 
 
         try {
             let recipientUser = await User.findByUsername(recipientName);
-            console.log(recipientUser.usernameRow.usersTable[0].id)
+            
             if (recipientUser.status) {
                 recipientId = recipientUser.usernameRow.usersTable[0].id
                 try {
@@ -130,10 +131,10 @@ class HomeController{
     async searchMsgList(req, res){
         let char = req.params.wildcard
         let offset = req.params.offset == undefined || req.params.offset == NaN ? 0 : req.params.offset
-        console.log(char)
+        
         SAM.searchForMsg(offset, char)
         .then(result=>{
-            console.log(result)
+            
             res.json({result})
         })
         .catch(error=>{
@@ -144,10 +145,10 @@ class HomeController{
 
     async searchUser(req, res){
         let char = req.params.wildcard
-        console.log(char)
+        
         SAM.searchUser(char)
             .then(result => {
-                console.log(result)
+                
                 res.json({ result })
             })
             .catch(error => {
@@ -163,7 +164,7 @@ class HomeController{
 
         try {
             var result = await User.getCredits(userId)
-                console.log(result)
+            
             newValue = (parseFloat(result.result[0].credits)-credits)
             if (newValue <= 0) {
                 res.status(406)
@@ -223,7 +224,7 @@ class HomeController{
             
             var checkLiked = await Home.checkLikeFavorite(pubId, userId);
 
-                console.log(checkLiked)
+            
 
             if (checkLiked.status) {
                 if (checkLiked.row[0].liked) {
@@ -295,7 +296,7 @@ class HomeController{
         
         try {
           var data = await User.getFollows(userId);
-            console.log(data)
+          
             return res.json({ followers: data.result.followers[0].followers, following: data.result.following[0].following })
         } catch (error) {
             return res.json({error})
@@ -307,8 +308,7 @@ class HomeController{
         const userId = req.body.userId;
         const pubIdeaId = req.body.pubIdeaId;
         const url = req.body.imgUrl;
-        console.log("user Id: " + userId)
-        console.log("Pub Id: " + pubIdeaId)
+        
         let user = await User.findById(userId)
         
         if (user != undefined) {
@@ -332,7 +332,7 @@ class HomeController{
         try {
             const result = await Home.searchPost(wildCard, offset)
             
-            console.log(result)
+            
             if (result.status) {
                 res.status(200)
                 res.json({result: result.row})
@@ -348,6 +348,197 @@ class HomeController{
         }
 
 
+    }
+
+
+    async sendReport(req,res){
+        let userId = req.body.userId;
+
+        try {
+            let user = await User.findById(userId)
+            if (user != undefined) {
+                let reportMsg = req.body.reportMsg;
+                let ideaReport = req.body.ideaReport;
+                let reportCategorie = req.body.reportCategorie;
+        
+                if (userId != undefined && ideaReport != undefined && reportCategorie != undefined ){
+                    try {
+                        await Home.sendReport(userId, ideaReport, reportMsg, reportCategorie);
+                        res.json({ msg: "Reportado com sucesso!" })
+
+                    } catch (error) {
+                        res.json({error})
+                    }
+                }else{
+                    res.send('Algo está faltando!')
+                }
+                
+            }
+        } catch (error) {
+            res.status(406)
+            res.send(error)
+        }
+
+    }
+
+
+    async listReports(req, res) {
+        const offset = req.params.offset
+
+        try {
+
+            console.log(offset)
+            const reports = await Home.listReports(offset)
+            console.log(reports)
+            if (reports.status) {
+                res.json({ result: reports.result[0] });
+                res.status(200)
+            } else {
+                res.json({ result: reports.error })
+                res.status(406)
+            }
+
+
+        } catch (error) {
+            res.status(406)
+            res.json({ error })
+        }
+    }
+
+    async getReportsByIdeaid(req, res) {
+        const ideaId = req.params.ideaId
+
+        try {
+            const reports = await Home.getReportsByIdeaid(ideaId)
+            if (reports.status) {
+                res.json({ reports: reports.result });
+                res.status(200)
+            } else {
+                res.json({ error: reports.error })
+                res.status(406)
+            }
+
+
+        } catch (error) {
+            res.status(406)
+            res.json({ error })
+        }
+
+    }
+
+
+    async sendFeedback(req, res) {
+        
+        let userId = req.body.userId;
+
+        console.log(userId)
+
+        try {
+            let user = await User.findById(userId)
+            if (user != undefined) {
+                let feedbackMsg = req.body.feedbackMsg;
+                let ideaId = req.body.ideaId;
+
+                console.log(feedbackMsg)
+                console.log(ideaId)
+
+
+                if (userId != undefined && ideaId != undefined) {
+                    console.log('chegou aqui')
+                    try {
+                        await Home.sendFeedback(userId, ideaId, feedbackMsg);
+                        res.json({msg: "inserido com sucesso!"})
+                    } catch (error) {
+                        res.json({ error })
+                    }
+                } else {
+                    res.send('Algo está faltando!')
+                }
+
+            }
+        } catch (error) {
+            res.status(406)
+            res.send(error)
+        }
+
+    }
+
+
+    async listFeedbacks(req, res) {
+        const userId = req.params.userId
+        const offset = req.params.offset
+
+        try {
+            const feedbacks = await Home.listFeedbacks(userId, offset)
+            if (feedbacks.status) {
+                res.json({ result: feedbacks.result[0] });
+                res.status(200)
+            } else {
+                res.json({ feedback: feedbacks.error })
+                res.status(406)
+            }
+
+
+        } catch (error) {
+            res.status(406)
+            res.json({ error })
+        }
+    }
+
+
+    async getFeedbackById(req, res) {
+        const id = req.params.id
+       
+        try {
+            const feedback = await Home.getFeedbackById(id)
+            if (feedback.status) {
+                res.json({feedback: feedback.result[0]});
+                res.status(200)
+            }else{
+                res.json({feedback: feedback.error})
+                res.status(406)
+            }
+
+
+        } catch (error) {
+            res.status(406)
+            res.json({error})
+        }
+
+    }
+
+    async disableIdea(req, res){
+        console.log('entrou aqui')
+        const ideaId = req.body.ideaId;
+
+        console.log(ideaId)
+        try {
+            let result = await Home.disableIdea(ideaId)
+            if (result.status) {
+                res.json({msg: 'desativado com sucesso!'})
+                res.status(200)
+            }
+        } catch (error) {
+            res.json({ msg: error })
+            res.status(406)
+        }
+    }
+
+    async releaseIdea(req, res) {
+        console.log('entrou aqui')
+        const ideaId = req.body.ideaId;
+
+        console.log(ideaId)
+        try {
+            let result = await Home.releaseIdea(ideaId)
+            if (result.status) {
+                res.json({ msg: 'liberado com sucesso!' })
+                res.status(200)
+            }
+        } catch (error) {
+            res.json({ msg: error })
+            res.status(406)
+        }
     }
 
 }

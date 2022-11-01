@@ -8,7 +8,7 @@ class User{
     async new(username, email, password){
         try {
             var hash = await bcrypt.hash(password, 10);
-            console.log(hash);
+            
             var newUser = await knex.insert({ username, email, password: hash, createdAt: new Date(), role: 0, updatedAt: new Date() }).table('users');
             await knex.insert({ userId: newUser[0], credits: 0 }).table('userinfo');
             await knex.insert({ userId: newUser[0], IN1_notification: false, IN2_notification: false, IN3_notification: false, FN1_notification: false, FN2_notification: false, FN3_notification: false, }).table('notifications');
@@ -80,7 +80,8 @@ class User{
         try {
             usernameRow.usersTable = await knex.select( 'id', 'username', 'email' ).where({ username }).table('users');
             usernameRow.userInfo = await knex.select('*').where({userId: usernameRow.usersTable[0].id}).table('userInfo');
-            console.log(usernameRow);
+            
+            
             if (usernameRow.usersTable.length > 0 && usernameRow.userInfo.length > 0) {
                 return {status: true, usernameRow};
             } else {
@@ -99,7 +100,8 @@ class User{
 
         try {
             var result = await knex.raw(`SELECT *, convert(profilePhoto using utf8) as profilePhotoUrl FROM users inner join userinfo on userId = id where id = ${id}`);
-            console.log(result)
+            
+            
             if (result.length > 0) {
                 return result[0];
             } else {
@@ -155,7 +157,7 @@ class User{
     async delete(id){
         var user = await this.findById(id);
 
-        console.log(user);  
+        
         if (user != undefined) {
             try {
                 await knex.delete().where({ id: id }).table('users');
