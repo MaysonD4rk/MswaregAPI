@@ -79,7 +79,7 @@ class User{
 
         try {
             usernameRow.usersTable = await knex.select( 'id', 'username', 'email' ).where({ username }).table('users');
-            usernameRow.userInfo = await knex.select('*').where({userId: usernameRow.usersTable[0].id}).table('userInfo');
+            usernameRow.userInfo = await knex.raw(`select *, convert(profilePhoto using utf8) as photoUrl from userInfo where userId = ${usernameRow.usersTable[0].id}`);
             
             
             if (usernameRow.usersTable.length > 0 && usernameRow.userInfo.length > 0) {
@@ -216,6 +216,37 @@ class User{
         }
     }
 
+    async followUser(userId, followingId){
+
+        try {
+            let verifyFollow = await knex.select('*').where({ follower_id: userId, following_id: followingId }).table('relations')
+            if (verifyFollow.length<1) {
+                try {
+                    let follow = await knex.insert({ follower_id: userId, following_id: followingId }).table('relations')
+                    return { status: true, msg: 'follow bem sucedido!', follow: true}
+                } catch (error) {
+                    return { status: false, error }
+                }
+            }else{
+                await knex.delete().where({ follower_id: userId, following_id: followingId }).table('relations')
+                return {status: true, msg: 'deletado com sucesso', follow: false}
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async verifyFollow(userId, followingId){
+        console.log(userId, followingId)
+        try {
+            let follow = await knex.select('*').where({ follower_id: userId, following_id: followingId }).table('relations')
+            console.log(follow);
+            return { status: true, result: follow }
+        } catch (error) {
+            return { status: false, error }
+        }
+    }
+
     async updateUserInfo(id, aboutMe){
         var user = await this.findById(id);
 
@@ -270,6 +301,17 @@ class User{
             return { status: false, error }
         }
 
+    }
+
+    async getSearchListUser(wildCard){
+        try {
+            let results = await knex.raw(`select username, convert(profilePhoto using utf8) as profilePhoto from users 
+                        inner join userinfo on userinfo.userId = id
+                        where username LIKE "%${wildCard}%";`)
+            return { status: true, results: results[0] }
+        } catch (error) {
+            return { status: false, error }
+        }
     }
 
 }

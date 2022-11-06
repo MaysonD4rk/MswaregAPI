@@ -9,7 +9,7 @@ class Home {
         if (pubContent.title != undefined && pubContent.ideaSummary != undefined && pubContent.mainIdea != undefined && pubContent.categoryId != undefined) {
            
             try {
-                var result = await knex.insert({ userId: pubContent.userId, categoryId: pubContent.categoryId, createdAt: new Date(), initialAmountRequired: pubContent.initialAmountRequired, isActive: 1 }).table('gamesideas');
+                var result = await knex.insert({ userId: pubContent.userId, categoryId: pubContent.categoryId, createdAt: new Date(), initialAmountRequired: pubContent.initialAmountRequired, isActive: 1, allowFeedback: pubContent.allowFeedbacks }).table('gamesideas');
                 
                 await knex.insert({ ideaId: result[0], title: pubContent.title, ideaSummary: pubContent.ideaSummary, mainIdea: pubContent.mainIdea }).table('gamesideascontent');
                 pubContent.images.forEach(async (url) => {
@@ -38,7 +38,7 @@ class Home {
         offset = offset == undefined || offset == NaN ? 0 : offset
 
         const sql = {
-            LikedByYou: `SELECT convert( ideaImage using utf8) as imageUrl, gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
+            LikedByYou: `SELECT allowFeedback, convert( ideaImage using utf8) as imageUrl, gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
                         right join gamesideas on gamesideas.id = ideaId
                         left JOIN gameideainteraction on gamesideascontent.ideaId = gameideainteraction.gameIdeaId
                         where gameideainteraction.userId = ${userId} AND gamesideas.isActive != 0
@@ -47,7 +47,7 @@ class Home {
                             ;`,
 
             nonLikedByYou: `
-            SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
+            SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, createdAt FROM mswareg.gamesideascontent
             left join gameideainteraction on gameideainteraction.gameIdeaId = ideaId
             right join gamesideas on gamesideas.id = ideaId
             where liked is null OR gameideainteraction.userId <> ${userId} AND gamesideas.isActive != 0
@@ -56,7 +56,7 @@ class Home {
             `,
 
             lessLiked: `
-            SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, createdAt, count(liked) as likes 
+            SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, createdAt, count(liked) as likes 
             FROM mswareg.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
@@ -65,7 +65,7 @@ class Home {
                             ;
             `,
 
-            mostLiked: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, createdAt, count(liked) as likes 
+            mostLiked: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, createdAt, count(liked) as likes 
             FROM mswareg.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
@@ -73,21 +73,21 @@ class Home {
             group by gameIdeaId order by likes DESC limit 8 offset ${offset}
                             ;`,
 
-            older: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
+            older: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
                     where gamesIdeas.isActive != 0
                     order by createdAt ASC limit 8 offset ${offset}
                             ;`,
 
-            mostRecent: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
+            mostRecent: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
                     where gamesIdeas.isActive != 0
                     order by createdAt DESC limit 8 offset ${offset}
                             ;`,
 
-            desc: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
+            desc: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
@@ -96,7 +96,7 @@ class Home {
                             ;
                             `,
             
-            asc: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
+            asc: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
@@ -104,27 +104,27 @@ class Home {
                             order by title ASC limit 8 offset ${offset}
                             ;`,
 
-            MostInvested: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
+            MostInvested: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
                             where gamesIdeas.isActive != 0
                             group by ideaId order by investmentFilter DESC limit 8 offset ${offset}
                             ;`,
             
-            BitInvested: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
+            BitInvested: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
                             where gamesIdeas.isActive != 0
                             group by ideaId order by investmentFilter ASC limit 8 offset ${offset}
                             ;`,
             
-            lowerInvestmentRequired: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
+            lowerInvestmentRequired: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
                                       where gamesIdeas.isActive != 0
                                       order by initialAmountRequired ASC limit 8 offset ${offset}
                             ;`,
             
-            mostInvestmentRequired: `SELECT convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
+            mostInvestmentRequired: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
                                       where gamesIdeas.isActive != 0
                                       order by initialAmountRequired DESC 
@@ -138,7 +138,7 @@ class Home {
             
                 try {
 
-                    var result = await knex.raw(`SELECT convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
+                    var result = await knex.raw(`SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
                             FROM mswareg.gamesideas
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
@@ -354,13 +354,13 @@ class Home {
         
         try {
 
-            let result = await knex.raw(`SELECT count(gameideainteraction.liked) as likes ,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
+            let result = await knex.raw(`SELECT allowFeedback,count(gameideainteraction.liked) as likes ,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
                             FROM mswareg.gamesideas
-                            INNER join gameideainteraction
+                            left join gameideainteraction
 							on gamesideas.id = gameideainteraction.gameIdeaId
                             INNER JOIN mswareg.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
-                            where title like "%${wildcard}%"
+                            where title like "%${wildcard}%" AND gamesideas.isActive != 0
                             group by gamesideas.id
                             order by likes DESC
                             limit 8 offset ${offset}
@@ -466,6 +466,17 @@ class Home {
 
     }
 
+    async deleteFeedkback(id) {
+        
+        try {
+            await knex.where({ id } ).delete().table('feedbacks') 
+            return { status: true }
+        } catch (error) {
+            return { status: false, error }
+        }
+
+    }
+
 
     async disableIdea(ideaId){
         try {
@@ -489,6 +500,19 @@ class Home {
             console.log(error)
             return { status: false, error }
         }
+    }
+
+    async generalSeach(wildcard){
+
+        try {
+            let ideaResult = await knex.raw(`SELECT count(ideaId) as results FROM mswareg.gamesideascontent where title LIKE "%${wildcard}%";`);
+            let usersResult = await knex.raw(`select count(id) as results from users where username LIKE "%${wildcard}%";`);
+            let msgsResult = await knex.raw(`select count(id) as results from sendletter where msg LIKE "%${wildcard}%";`);
+            return { status: true, results: { ideaResult: ideaResult[0], usersResult: usersResult[0], msgsResult: msgsResult[0]}}
+        } catch (error) {
+            return {status: false}
+        }
+
     }
 
 

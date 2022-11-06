@@ -41,9 +41,9 @@ class HomeController{
 
     async createPub(req, res){
 
-        var { title, ideaSummary, mainIdea, userId, categoryId, initialAmountRequired, images } = req.body;
+        var { title, ideaSummary, mainIdea, userId, categoryId, initialAmountRequired, images, allowFeedbacks } = req.body;
 
-
+        console.log(allowFeedbacks)
 
         var pubContent = {
             title,
@@ -52,7 +52,8 @@ class HomeController{
             userId,
             categoryId,
             initialAmountRequired,
-            images
+            images,
+            allowFeedbacks
         }
 
 
@@ -132,7 +133,7 @@ class HomeController{
         let char = req.params.wildcard
         let offset = req.params.offset == undefined || req.params.offset == NaN ? 0 : req.params.offset
         
-        SAM.searchForMsg(offset, char)
+        SAM.searchForMsgUsername(offset, char)
         .then(result=>{
             
             res.json({result})
@@ -141,6 +142,20 @@ class HomeController{
             console.log(error)
         })
 
+    }
+
+    async searchForMsg(req, res){
+        let wildCard = req.params.wildcard
+        let offset = req.params.offset == undefined || req.params.offset == NaN ? 0 : req.params.offset
+
+        SAM.searchForMsg(offset, wildCard)
+            .then(result => {
+
+                res.json({ result: result.row })
+            })
+            .catch(error => {
+                console.log(error)
+            })
     }
 
     async searchUser(req, res){
@@ -507,6 +522,20 @@ class HomeController{
 
     }
 
+    async deleteFeedkback(req,res){
+        let id = req.params.feedbackId
+        try {
+            let result = await Home.deleteFeedkback(id)
+            if (result.status) {
+                res.json({ msg: 'apagado com sucesso!' })
+                res.status(200)
+            }
+        } catch (error) {
+            res.json({ msg: error })
+            res.status(406)
+        }
+    }
+
     async disableIdea(req, res){
         console.log('entrou aqui')
         const ideaId = req.body.ideaId;
@@ -539,6 +568,26 @@ class HomeController{
             res.json({ msg: error })
             res.status(406)
         }
+    }
+
+
+    async generalSeach(req,res){
+        let search = req.params.search
+        search = `${search}` 
+        try {
+            let results = await Home.generalSeach(search)
+            if(results.status){
+                res.json({ results: results.results })
+                res.status(200)
+            }else{
+                res.status(406)
+                res.json({msg: 'deu erro meno'})
+            }
+        } catch (error) {
+            res.json({msg: 'deu erro meno'})
+            res.status(406)
+        }
+        
     }
 
 }

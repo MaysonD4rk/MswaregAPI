@@ -298,6 +298,66 @@ class UserController{
     }
 
 
+    async getSearchListUser(req, res){
+        let userQuery = req.params.userQuery;
+        try {
+            let results = await User.getSearchListUser(userQuery);
+            if (results.status) {
+                res.json({results: results.results})
+                res.status(200)
+            }else{
+                res.json({ error: 'deu erro' })
+                res.status(406)
+            }
+        } catch (error) {
+            res.json({ error })
+            res.status(406)
+        }
+    }
+
+    async followUser(req,res){
+        let userId = req.body.userId;
+        let followingId = req.body.followingId
+        
+        try {
+            let result = await User.followUser(userId, followingId)
+            if (result.status) {
+                res.json({ msg: result.msg, follow: result.follow })
+                res.status(200)
+            }else{
+                res.status(406)
+                res.json({ msg: 'algo deu errado...' })
+            }
+        } catch (error) {
+            res.json({error})
+            res.status(406)
+        }
+    }
+    async verifyFollow(req,res){
+        let userId = req.params.userId;
+        let followingId = req.params.followingId
+        
+        try {
+            let result = await User.verifyFollow(userId, followingId)
+            
+            if (result.status) {
+                if (result.result.length<1) {
+                    res.json({ follow: false })
+                    res.status(200)
+                }else{
+                    res.json({ follow: true })
+                    res.status(200)
+                }
+            } else {
+                res.json({ msg: 'algo deu errado...' })
+                res.status(406)
+            }
+        } catch (error) {
+            res.json({ error })
+            res.status(406)
+        }
+    }
+
 }
 
 module.exports = new UserController()
