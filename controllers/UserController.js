@@ -7,7 +7,7 @@ var jwt = require("jsonwebtoken");
 var secret = "adsuasgdhjasgdhjdgahjsg12hj3eg12hj3g12hj3g12hj3g123";
 
 var bcrypt = require("bcrypt");
-const passwordToken = require('../models/passwordToken');
+const passwordToken = require('../models/PasswordToken');
 
 const sendEmail = require('../methods/sendEmail');
 
