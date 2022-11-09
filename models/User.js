@@ -74,15 +74,15 @@ class User{
 
         var usernameRow = {
             usersTable: {} ,
-            userInfo: {} ,
+            userinfo: {} ,
         }
 
         try {
             usernameRow.usersTable = await knex.select( 'id', 'username', 'email' ).where({ username }).table('users');
-            usernameRow.userInfo = await knex.raw(`select *, convert(profilePhoto using utf8) as photoUrl from userInfo where userId = ${usernameRow.usersTable[0].id}`);
+            usernameRow.userinfo = await knex.raw(`select *, convert(profilePhoto using utf8) as photoUrl from userinfo where userId = ${usernameRow.usersTable[0].id}`);
             
             
-            if (usernameRow.usersTable.length > 0 && usernameRow.userInfo.length > 0) {
+            if (usernameRow.usersTable.length > 0 && usernameRow.userinfo.length > 0) {
                 return {status: true, usernameRow};
             } else {
                 return {status: false};
@@ -195,7 +195,7 @@ class User{
     async getCredits(userId) {
 
         try {
-            var result = await knex.select('*').where({userId}).table('userInfo')
+            var result = await knex.select('*').where({userId}).table('userinfo')
             return {status: true, result}
         } catch (error) {
             return { status: false, error }
@@ -247,14 +247,14 @@ class User{
         }
     }
 
-    async updateUserInfo(id, aboutMe){
+    async updateuserinfo(id, aboutMe){
         var user = await this.findById(id);
 
         if (user != undefined) {
 
             if (aboutMe != undefined) {
                 try {
-                    await knex.update({AboutMe: aboutMe}).where({ userId: id }).table('userInfo');
+                    await knex.update({AboutMe: aboutMe}).where({ userId: id }).table('userinfo');
                     return { status: true }
                 } catch (error) {
                     return { status: false, error }
@@ -271,7 +271,7 @@ class User{
 
         if (user != undefined) {
             try {
-                await knex.update({ profilePhoto: url}).where({ userId }).table('userInfo');
+                await knex.update({ profilePhoto: url}).where({ userId }).table('userinfo');
                 return { status: true }
             } catch (error) {
                 return { status: false, error }
@@ -283,7 +283,7 @@ class User{
     async updateInfo(FirstName, LastName, userId){
 
         try {
-            await knex.update({ FirstName, LastName }).where({ userId }).table('userInfo');
+            await knex.update({ FirstName, LastName }).where({ userId }).table('userinfo');
             return { status: true }
         } catch (error) {
             return { status: false, error }
