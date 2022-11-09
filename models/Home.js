@@ -60,7 +60,7 @@ class Home {
             FROM mswareg_dev.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
-            where gamesIdeas.isActive != 0
+            where gamesideas.isActive != 0
             group by gameIdeaId order by likes ASC limit 8 offset ${offset}
                             ;
             `,
@@ -69,21 +69,21 @@ class Home {
             FROM mswareg_dev.gameideainteraction 
             left join gamesideascontent on gamesideascontent.ideaId = gameIdeaId
             right join gamesideas on gamesideas.id = ideaId
-            where gamesIdeas.isActive != 0
+            where gamesideas.isActive != 0
             group by gameIdeaId order by likes DESC limit 8 offset ${offset}
                             ;`,
 
             older: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg_dev.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
-                    where gamesIdeas.isActive != 0
+                    where gamesideas.isActive != 0
                     order by createdAt ASC limit 8 offset ${offset}
                             ;`,
 
             mostRecent: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gamesideas.userId, createdAt FROM mswareg_dev.gamesideas 
                     right join gamesideascontent on gamesideascontent.ideaId = id
                     left join gameideainteraction on gameideainteraction.gameIdeaId = id
-                    where gamesIdeas.isActive != 0
+                    where gamesideas.isActive != 0
                     order by createdAt DESC limit 8 offset ${offset}
                             ;`,
 
@@ -91,7 +91,7 @@ class Home {
                             FROM mswareg_dev.gamesideas
                             INNER JOIN mswareg_dev.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
-                            where gamesIdeas.isActive != 0
+                            where gamesideas.isActive != 0
                             order by title desc limit 8 offset ${offset}
                             ;
                             `,
@@ -100,33 +100,33 @@ class Home {
                             FROM mswareg_dev.gamesideas
                             INNER JOIN mswareg_dev.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
-                            where gamesIdeas.isActive != 0
+                            where gamesideas.isActive != 0
                             order by title ASC limit 8 offset ${offset}
                             ;`,
 
             MostInvested: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg_dev.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
-                            where gamesIdeas.isActive != 0
+                            where gamesideas.isActive != 0
                             group by ideaId order by investmentFilter DESC limit 8 offset ${offset}
                             ;`,
             
             BitInvested: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, SUM(investments.investment) as investmentFilter FROM mswareg_dev.gamesideascontent
                             right join gamesideas on gamesideas.id = ideaId
                             left join investments on investments.gameIdeaId = ideaId
-                            where gamesIdeas.isActive != 0
+                            where gamesideas.isActive != 0
                             group by ideaId order by investmentFilter ASC limit 8 offset ${offset}
                             ;`,
             
             lowerInvestmentRequired: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg_dev.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
-                                      where gamesIdeas.isActive != 0
+                                      where gamesideas.isActive != 0
                                       order by initialAmountRequired ASC limit 8 offset ${offset}
                             ;`,
             
             mostInvestmentRequired: `SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary FROM mswareg_dev.gamesideas
                                       right join gamesideascontent on id = gamesideascontent.ideaId
-                                      where gamesIdeas.isActive != 0
+                                      where gamesideas.isActive != 0
                                       order by initialAmountRequired DESC 
                                       limit 8 offset ${offset}
                             ;`
@@ -142,7 +142,7 @@ class Home {
                             FROM mswareg_dev.gamesideas
                             INNER JOIN mswareg_dev.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
-                            where gamesIdeas.isActive != 0
+                            where gamesideas.isActive != 0
                             limit 8 offset ${offset}
                             ;`);
 
