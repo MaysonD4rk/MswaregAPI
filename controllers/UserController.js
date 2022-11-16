@@ -1,7 +1,9 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config()
+}
 const express = require('express');
 const app = express();
 const User = require('../models/User');
-
 var jwt = require("jsonwebtoken");
 
 var secret = "adsuasgdhjasgdhjdgahjsg12hj3eg12hj3g12hj3g12hj3g123";
@@ -109,7 +111,7 @@ class UserController{
 
             if (result) {
                 
-                var token = jwt.sign({email: user.email, role: user.role}, secret);
+                var token = jwt.sign({email: user.email, role: user.role}, process.env.SECRET);
 
                 res.status(200);
                 res.json({token: token, id: user.id});
@@ -206,7 +208,7 @@ class UserController{
         var aboutMe = req.body.aboutMe;
 
         try {
-            var update = await User.updateUserInfo(id, aboutMe)
+            var update = await User.updateuserinfo(id, aboutMe)
             
             if (update.status) {
                 res.status(200)
@@ -300,8 +302,9 @@ class UserController{
 
     async getSearchListUser(req, res){
         let userQuery = req.params.userQuery;
+        let offset = req.params.offset == undefined || req.params.offset < 0 ? 0 : req.params.offset;
         try {
-            let results = await User.getSearchListUser(userQuery);
+            let results = await User.getSearchListUser(userQuery, offset);
             if (results.status) {
                 res.json({results: results.results})
                 res.status(200)

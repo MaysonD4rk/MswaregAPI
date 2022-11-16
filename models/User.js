@@ -303,11 +303,13 @@ class User{
 
     }
 
-    async getSearchListUser(wildCard){
+    async getSearchListUser(wildCard, offset){
         try {
-            let results = await knex.raw(`select username, convert(profilePhoto using utf8) as profilePhoto from users 
+            let results = await knex.raw(`select users.id as id, username, convert(profilePhoto using utf8) as profilePhoto from users 
                         inner join userinfo on userinfo.userId = id
-                        where username LIKE "%${wildCard}%";`)
+                        where username LIKE "%${wildCard}%"
+                        limit 20 offset ${offset}
+                        ;`)
             return { status: true, results: results[0] }
         } catch (error) {
             return { status: false, error }

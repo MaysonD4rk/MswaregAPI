@@ -220,6 +220,7 @@ class HomeController{
                 res.status(200)
                 res.json({result})
             }else{
+                console.log(result)
                 res.status(406)
                 res.json({ msg: 'algo está errado!' })
             }
@@ -588,6 +589,39 @@ class HomeController{
             res.status(406)
         }
         
+    }
+
+    async countPosts(req, res){
+        let userId = req.params.userId
+        try {
+            let count = await Home.countPosts(userId)
+            console.log(count.result)
+            res.json({result: count.result.count[0].posts})
+            res.status(200)
+        } catch (error) {
+            res.json({ error })
+            res.status(406)
+        }
+    }
+
+    async profilePageContentList(req, res){
+        let userid = req.params.userid
+        let offset = req.params.offset
+        console.log(userid)
+        try {
+            let result = await Home.profilePageContentList(userid, offset)
+            let arrayToSort = result.content
+            
+            let sortResult = arrayToSort.sort(function(a,b){return new Date(b.createdat) - new Date(a.createdat)}).slice((offset*20),((offset*20)+20))
+            console.log(sortResult)
+            res.status(200)
+            res.json({ result: sortResult })
+        } catch (error) {
+            console.log(error)
+            res.json({error})
+            res.status(406)
+
+        }
     }
 
 }

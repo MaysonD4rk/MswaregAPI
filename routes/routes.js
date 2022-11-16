@@ -26,7 +26,9 @@ router.get('/listReports/:offset', HomeController.listReports);
 router.get('/getReports/:ideaId', HomeController.getReportsByIdeaid);
 router.get('/getFeedback/:id', HomeController.getFeedbackById);
 router.get('/generalSeach/:search', HomeController.generalSeach);
-router.get('/getSearchListUser/:userQuery', UserController.getSearchListUser)
+router.get('/getSearchListUser/:offset/:userQuery', UserController.getSearchListUser);
+router.get('/countPosts/:userId', HomeController.countPosts);
+router.get('/profilePageContentList/:userid/:offset', HomeController.profilePageContentList);
 router.post('/sendReport', HomeController.sendReport);
 router.post('/sendFeedback', HomeController.sendFeedback);
 router.post('/writeMsg', HomeController.writeMsg);
