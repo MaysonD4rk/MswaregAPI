@@ -13,7 +13,9 @@ module.exports = async function (req, res, next) {
         try {
             const decoded = jwt.verify(token, process.env.SECRET);
             const user = await User.findByEmail(decoded.email);
+                console.log(user)
             const result = await bcrypt.compare(decoded.password, user.password)
+            console.log(result)
 
             if (result) {
                 next();
