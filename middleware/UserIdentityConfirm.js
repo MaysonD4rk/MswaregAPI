@@ -3,7 +3,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt')
 
 module.exports = async function (req, res, next) {
-    const authToken = req.headers['Autorization'];
+    const authToken = req.headers['Authorization'];
 
     if (authToken != undefined) {
         var bearer = authToken.split(' ');

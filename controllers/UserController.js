@@ -6,7 +6,6 @@ const app = express();
 const User = require('../models/User');
 var jwt = require("jsonwebtoken");
 
-var secret = "adsuasgdhjasgdhjdgahjsg12hj3eg12hj3g12hj3g12hj3g123";
 
 var bcrypt = require("bcrypt");
 const passwordToken = require('../models/PasswordToken');
