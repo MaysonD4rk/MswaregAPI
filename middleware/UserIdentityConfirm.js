@@ -1,18 +1,23 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const bcrypt = require('bcrypt')
 
-
-module.exports = function(req, res, next){
+module.exports = async function (req, res, next) {
     const authToken = req.headers['Autorization'];
 
     if (authToken != undefined) {
-        var bearer  = authToken.split(' ');
+        var bearer = authToken.split(' ');
         var token = bearer[1];
 
+        
         try {
-            var decoded = jwt.verify(token, process.env.SECRET);
-            if (decoded.role == 1 ) {
+            const decoded = jwt.verify(token, process.env.SECRET);
+            const user = await User.findByEmail(decoded.email);
+            const result = await bcrypt.compare(decoded.password, user.password)
+
+            if (result) {
                 next();
-            }else{
+            } else {
                 res.status(403);
                 res.send('você não tem permissão para entrar aqui!');
                 return;
