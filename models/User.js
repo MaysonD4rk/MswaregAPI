@@ -54,10 +54,10 @@ class User{
     }
 
     async findByEmail(email) {
-
+        email = `${email}`
         try {
             var result = await knex.select('*').where({ email }).table('users');
-
+            console.log(result)
             if (result.length > 0) {
                 return result[0];
             } else {
@@ -99,7 +99,7 @@ class User{
     async findById(id) {
 
         try {
-            var result = await knex.raw(`SELECT *, convert(profilePhoto using utf8) as profilePhotoUrl FROM users inner join userinfo on userId = id where id = ${id}`);
+            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl FROM users inner join userinfo on userId = id where id = ${id}`);
             
             
             if (result.length > 0) {

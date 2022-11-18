@@ -3,15 +3,18 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt')
 
 module.exports = async function (req, res, next) {
-    const authToken = req.headers['Authorization'];
-
+    const authToken = req.headers['authorization'];
+    console.log('esta tentanod autorizar');
+    
     if (authToken != undefined) {
         var bearer = authToken.split(' ');
         var token = bearer[1];
+        
 
         
         try {
             const decoded = jwt.verify(token, process.env.SECRET);
+            
             const user = await User.findByEmail(decoded.email);
                 console.log(user)
             const result = await bcrypt.compare(decoded.password, user.password)

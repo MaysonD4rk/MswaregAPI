@@ -21,24 +21,25 @@ class UserController{
         var password = req.body.password
 
         if (email == undefined) {
-        
-            res.status(400)
-
+            
+            return res.status(400)
+            
         }
-
+        
         var emailExist = await User.findEmail(email);
-
+        
         var usernameExist = await User.findUsername(username);
-
+        
         if (emailExist || usernameExist) {
-            res.status(406);
-            return false;
+            console.log('entrou aqui')
+            res.status(409);
         }
 
 
         try {
             var result = await User.new(username, email, password)
-            res.json({result})
+            var token = jwt.sign({ email: email, role: 0, password }, process.env.SECRET);
+            res.json({result, token})
             res.status(200);
             
         } catch (error) {

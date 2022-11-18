@@ -24,7 +24,7 @@ class SendAMsg{
         try {
 
             var result = await knex.raw(`SELECT userinfo.userid as userIdSenter, convert(userinfo.profilePhoto using utf8) as profilePhoto,senter.username, recipient.username as recipientName, sendletter.msg
-FROM mswareg_dev.sendletter 
+FROM mswareg.sendletter 
 INNER JOIN users as senter ON senter.id = sendletter.userId
 INNER JOIN userinfo on userinfo.userId = sendletter.userId
 INNER JOIN users as recipient ON recipient.id = sendletter.recipientId limit 15 offset ${offset};`);
@@ -44,7 +44,7 @@ INNER JOIN users as recipient ON recipient.id = sendletter.recipientId limit 15 
         try {
 
             let result = await knex.raw(`SELECT userinfo.userid as userIdSenter, convert(userinfo.profilePhoto using utf8) as profilePhoto,senter.username, recipient.username as recipientName, sendletter.msg, sendletter.createdAt
-FROM mswareg_dev.sendletter 
+FROM mswareg.sendletter 
 INNER JOIN users as senter ON senter.id = sendletter.userId
 INNER JOIN userinfo on userinfo.userId = sendletter.userId
 INNER JOIN users as recipient ON recipient.id = sendletter.recipientId
@@ -84,7 +84,7 @@ limit 15 offset ${offset};`);
 
             let result = await knex.raw(`
             SELECT userinfo.userid as userIdSenter, convert(userinfo.profilePhoto using utf8) as profilePhoto,senter.username, recipient.username as recipientName, sendletter.msg, sendletter.createdAt
-FROM mswareg_dev.sendletter 
+FROM mswareg.sendletter 
 INNER JOIN users as senter ON senter.id = sendletter.userId
 INNER JOIN userinfo on userinfo.userId = sendletter.userId
 INNER JOIN users as recipient ON recipient.id = sendletter.recipientId
