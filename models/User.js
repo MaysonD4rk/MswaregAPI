@@ -99,7 +99,7 @@ class User{
     async findById(id) {
 
         try {
-            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl FROM users inner join userinfo on userId = id where id = ${id}`);
+            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl, credits FROM users inner join userinfo on userId = id where id = ${id}`);
             
             
             if (result.length > 0) {
