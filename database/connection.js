@@ -9,4 +9,6 @@ var knex = require('knex')({
     }
 })
 
+console.log(knex.connection());
+
 module.exports = knex
