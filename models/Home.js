@@ -42,7 +42,7 @@ class Home {
                         right join gamesideas on gamesideas.id = ideaId
                         left JOIN gameideainteraction on gamesideascontent.ideaId = gameideainteraction.gameIdeaId
                         left JOIN investments on investments.gameideaid = gamesideascontent.ideaid
-                        where liked = 1 AND gameideainteraction.userId = 1 AND gamesideas.isActive != 0
+                        where liked = 1 AND gameideainteraction.userId = ${userId} AND gamesideas.isActive != 0
                         group by gamesideas.id
                         order by liked, likedAt DESC
                         limit 8 offset ${offset}
