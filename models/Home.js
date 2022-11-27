@@ -38,7 +38,7 @@ class Home {
         offset = offset == undefined || offset == NaN ? 0 : offset
 
         const sql = {
-            LikedByYou: `SELECT allowFeedback, convert( ideaImage using utf8) as imageUrl, gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, gamesideas.createdAt, sum(investment) as investment FROM mswareg_dev_dev.gamesideascontent
+            LikedByYou: `SELECT allowFeedback, convert( ideaImage using utf8) as imageUrl, gamesideas.id, gamesideas.initialAmountRequired , categoryId, title, ideaSummary, gameideainteraction.userId, liked, gamesideas.createdAt, sum(investment) as investment FROM mswareg_dev.gamesideascontent
                         right join gamesideas on gamesideas.id = ideaId
                         left JOIN gameideainteraction on gamesideascontent.ideaId = gameideainteraction.gameIdeaId
                         left JOIN investments on investments.gameideaid = gamesideascontent.ideaid
