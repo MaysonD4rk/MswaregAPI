@@ -3,7 +3,6 @@ const app = express();
 const Home = require('../models/Home');
 const SAM = require('../models/SAMmodel');
 const User = require('../models/User');
-const { get } = require('../routes/routes');
 
 class HomeController{
     async index(req, res){
