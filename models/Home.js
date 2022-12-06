@@ -258,13 +258,14 @@ class Home {
         var finalResult = {}
         try {
             
-            let result = await knex.raw(`select username, gamesideas.id as id, userId, categories.name as category, gamesideas.createdAt as createdAt, convert(ideaImage using utf8) as mainImg from gamesideas left join categories on categories.id = gamesideas.categoryid right join users on users.id = gamesideas.userid where gamesideas.id = ${id};`);
+            let result = await knex.raw(`select SUM(investment) as investment,username, gamesideas.id as id, gamesideas.userId, categories.name as category, gamesideas.createdAt as createdAt, convert(ideaImage using utf8) as mainImg from gamesideas left join categories on categories.id = gamesideas.categoryid right join users on users.id = gamesideas.userid left join investments on investments.gameIdeaId = gamesideas.id where gamesideas.id = ${id};`);
             let result2 = await knex.raw(`SELECT ideaId, convert(mainIdea using utf8) as mainIdea, title, ideaSummary from gamesideascontent where ideaId = ${result[0][0].id}; `)
             let getImages = await knex.raw(`SELECT convert(url using utf8) as url from images where ideaIdRef = ${result[0][0].id}; `)
 
             finalResult.id = result[0][0].id;
             finalResult.userId = result[0][0].userId;
-            finalResult.createdBy = result[0][0].username;         
+            finalResult.createdBy = result[0][0].username;
+            finalResult.totalInvestment = result[0][0].investment         
             finalResult.category = result[0][0].category;          
             finalResult.createdAt = result[0][0].createdAt;
             finalResult.mainImg = result[0][0].mainImg
@@ -476,7 +477,7 @@ class Home {
     }
 
 
-    async getFeedbackById(id){
+    async getFeedbackById(id, userId){
         
         try {
             const list = await knex.raw(`
@@ -486,6 +487,7 @@ class Home {
                 where feedbacks.id = ${id}
                 ;
             `)
+
             return {status: true, result: list}
         } catch (error) {
             return {status: false, error}
@@ -575,6 +577,47 @@ order by sendletter.createdat
             return { status: false}
         }
     }
+
+    async listWithdrawalRequests(offset){
+        try {
+            const listWithdrawalRequests = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where status IS NULL group by userId order by valueReq desc limit 30 offset ${offset};`);
+            return { status: true, listWithdrawalRequests }
+        } catch (error) {
+            return {status: false, error}
+        }
+    }
+    async withdrawRequest(userId, value){
+        try {
+            await knex.insert({ userId, valueRequested: value}).table('withdrawalRequests');
+            return {status: true}
+        } catch (error) {
+            return { status: false, error}
+        }
+    }
+
+    async findWithdrawRequestByUserId(userId){
+        try {
+            const withdrawRequest = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where withdrawalrequests.userId = ${userId};`)
+            return { status: true, withdrawRequest: withdrawRequest[0] }
+        } catch (error) {
+            return { status: false, error }
+        }
+    }
+
+
+    async withdrawStatus(userId, status){
+        try {
+            await knex.update({ status }).where({ userId }).table('withdrawalrequests');
+            if (status == 'done') {
+                return {status: true, statusMsg: 'Retirada foi feita com sucesso! em caso de problema, por favor entre em contato com o suporte :)'}
+            }else if(status=='deny'){
+                return { status: true, statusMsg: 'Sua solicitação de retirada foi negada! Por favor solicite novamente e não se esqueça de cadastrar sua chave pix corretamente. :)' }
+            }
+        } catch (error) {
+            return { status: false, error }
+        }
+    }
+
 
 
 

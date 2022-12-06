@@ -1,4 +1,3 @@
-
 var knex = require('knex')({
     client: process.env.DBCLIENT,
     connection: {
@@ -8,5 +7,6 @@ var knex = require('knex')({
         database: process.env.DATABASE
     }
 })
+
 
 module.exports = knex

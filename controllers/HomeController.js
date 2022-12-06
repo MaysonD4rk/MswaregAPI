@@ -3,6 +3,7 @@ const app = express();
 const Home = require('../models/Home');
 const SAM = require('../models/SAMmodel');
 const User = require('../models/User');
+const { get } = require('../routes/routes');
 
 class HomeController{
     async index(req, res){
@@ -504,17 +505,23 @@ class HomeController{
 
     async getFeedbackById(req, res) {
         const id = req.params.id
-       
+        const userId = req.params.userId;
+
         try {
             const feedback = await Home.getFeedbackById(id)
-            if (feedback.status) {
-                res.json({feedback: feedback.result[0]});
-                res.status(200)
+            const onePub = await Home.findOnePub(feedback.result[0][0].ideaId);
+            if(onePub.finalResult.userId != userId){
+                res.json({ error: 'você não pode fazer isso >:('});
+                res.status(403)
             }else{
-                res.json({feedback: feedback.error})
-                res.status(406)
+                if (feedback.status) {
+                    res.json({feedback: feedback.result[0]});
+                    res.status(200)
+                }else{
+                    res.json({feedback: feedback.error})
+                    res.status(406)
+                }
             }
-
 
         } catch (error) {
             res.status(406)
@@ -524,12 +531,21 @@ class HomeController{
     }
 
     async deleteFeedkback(req,res){
-        let id = req.params.feedbackId
+        let id = req.params.feedbackId;
+        let userId = req.params.userId
         try {
-            let result = await Home.deleteFeedkback(id)
-            if (result.status) {
-                res.json({ msg: 'apagado com sucesso!' })
-                res.status(200)
+            let getFeedback = await Home.getFeedbackById(id);
+            const onePub = await Home.findOnePub(getFeedback.result[0][0].ideaId);
+            if (onePub.finalResult.userId != userId) {
+                res.json({ error: 'você não pode fazer isso >:(' });
+                res.status(403)
+            } else {
+                
+                let result = await Home.deleteFeedkback(id)
+                if (result.status) {
+                    res.json({ msg: 'apagado com sucesso!' })
+                    res.status(200)
+                }
             }
         } catch (error) {
             res.json({ msg: error })
@@ -621,6 +637,85 @@ class HomeController{
             res.json({error})
             res.status(406)
 
+        }
+    }
+    
+    async listWithdrawalRequests(req, res){
+        const offset = req.params.offset;
+        try {
+            const request = await Home.listWithdrawalRequests(offset);;
+            res.status(200)
+            res.json(request.listWithdrawalRequests[0]);
+        } catch (error) {
+            res.status(406)
+            res.json(error)
+        }
+    }
+
+    async withdrawRequest(req, res){
+        const userId = req.body.userId;
+        const value = parseFloat(req.body.value)
+
+        try {
+            const requestById = await Home.findWithdrawRequestByUserId(userId);
+            if (requestById.withdrawRequest.length>0) {
+                res.status(429)
+                res.json({status: 429,msg: "Você já realizou um pedido. Tente novamente ou mais tarde!"})
+            }else{
+                try {
+                    const request = await Home.withdrawRequest(userId, value);
+                    res.status(200)
+                    res.json(request);
+                } catch (error) {
+                    res.status(406)
+                    res.json(error);
+                }
+            }
+        } catch (error) {
+            res.json(error)
+            res.status(406)
+        }
+        
+        
+    }
+
+    async findWithdrawRequestByUserId(req, res){
+        const userId = req.params.userId;
+
+        try {
+            const requestById = await Home.findWithdrawRequestByUserId(userId);
+            res.status(200)
+            res.json(requestById.withdrawRequest);
+        } catch (error) {
+            res.status(406)
+            res.json(error);
+        }
+    }
+
+    async withdrawStatus(req, res){
+        const userId = req.body.userId;
+        const status = req.body.status;
+        const email = req.body.email;
+        try {
+            const result = await Home.withdrawStatus(userId, status);
+
+            if (result.status) {
+                var response = await sendEmail(`${email}`, result.statusMsg, "STATUS DE RETIRADA");
+                if (response.status) {
+                    res.status(200);
+                    res.json({ msg: 'Email enviado com sucesso' })
+                } else {
+                    res.status(406);
+                    res.json({ msg: 'Algo está errado...' })
+                }
+            }else{
+                res.status(406);
+                res.json(error);
+            }
+
+        } catch (error) {
+            res.status(406)
+            res.json(error);
         }
     }
 

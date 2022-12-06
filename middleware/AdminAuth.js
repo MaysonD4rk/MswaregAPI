@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 
 module.exports = function(req, res, next){
-    const authToken = req.headers['Authorization'];
+    const authToken = req.headers['authorization'];
 
     if (authToken != undefined) {
         var bearer  = authToken.split(' ');
@@ -10,6 +10,7 @@ module.exports = function(req, res, next){
 
         try {
             var decoded = jwt.verify(token, process.env.SECRET);
+            console.log(decoded)
             if (decoded.role == 1 ) {
                 next();
             }else{

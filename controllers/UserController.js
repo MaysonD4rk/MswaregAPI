@@ -134,9 +134,10 @@ class UserController{
         var result = await passwordToken.create(email);
 
         if (result.status) {
+            const emailMsg = `Clique no link para redefinir sua senha - http://localhost:8080/recovery/?token=${result.token}&email=${email}`
             try {
                 console.log('chegou aqui');
-                var response = await sendEmail(`${email}`, `http://localhost:8080/recovery/?token=${result.token}&email=${email}`);
+                var response = await sendEmail(`${email}`, emailMsg, "PASSWORD RECOVERY");
                 console.log(response);
                 if (response.status) {
                     res.status(200);
@@ -255,9 +256,15 @@ class UserController{
         let userId = req.body.userId
 
         try {
-            await User.updateInfo(FirstName, LastName, userId)
-            res.json({ msg: 'nome alterado com sucesso' })
-            res.status(200)
+            const updatestatus = await User.updateInfo(FirstName, LastName, userId)
+            
+            if (updatestatus.status) {
+                res.json({ msg: 'nome alterado com sucesso hehe' })
+                res.status(200)
+            }else{
+                res.json(error)
+                res.status(406);
+            }
         } catch (error) {
             res.json(error)
             console.log(error)
@@ -269,6 +276,7 @@ class UserController{
 
     async updateNotifications(req, res){
         const userId = req.body.userId
+        console.log(userId)
         const notifications = {
             IN1_notification: req.body.notification1,
             IN2_notification: req.body.notification2,
@@ -278,6 +286,7 @@ class UserController{
             FN3_notification: req.body.notification6
 
         }
+        console.log(notifications)
 
         try {
             const result = await User.updateNotifications(notifications, userId);
@@ -290,11 +299,27 @@ class UserController{
             }
             
         } catch (error) {
-            res.json({error})
             res.status(406)
+            res.json({error})
         }
 
 
+    }
+
+
+    async verifyActiveNotifications(req, res){
+        const userId = req.params.userId;
+        console.log(userId)
+        try {
+            const notificationsList = await User.getActiveNotifications(userId);
+            console.log(notificationsList);
+            res.status(200)
+            res.json(notificationsList) 
+        } catch (error) {
+            res.status(406)
+            console.log(error)
+            res.json(error) 
+        }
     }
 
 
@@ -356,6 +381,43 @@ class UserController{
         } catch (error) {
             res.json({ error })
             res.status(406)
+        }
+    }
+
+    async changeUsername(req, res){
+        const username = req.body.username;
+        const userId = req.body.userId;
+
+        const usernameExist = await User.findByUsername(username);
+        
+        if (!usernameExist.status) {
+
+            const userInfo = await User.findById(userId);
+            console.log(parseFloat(userInfo[0].credits))
+            
+            if (parseFloat(userInfo[0].credits)>=10) {
+                try {
+                    const changeResult = await User.changeUsername(userId, username);
+                    if (changeResult.status) {
+                        res.status(200);
+                        res.json({msg: 'alterado com sucesso'});
+                    }else{
+                        res.status(406);
+                        res.json({ msg: 'não foi possível alterar o nome.' });
+                    }
+                } catch (error) {
+                    res.status(406);
+                    res.json(error);
+                }
+            }else{
+                res.status(406);
+                res.json({ msg: 'Não tem créditos o suficiente.' });
+            }
+
+
+        }else{ 
+            res.status(405)
+            res.json({msg: 'username já está sendo utilizado!'});
         }
     }
 

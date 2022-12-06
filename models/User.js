@@ -23,7 +23,7 @@ class User{
     async findEmail(email){
 
         try {
-            var result = await knex.select('*').where({email}).table('users');
+            var result = await knex.select('email').where({email}).table('users');
 
             if (result.length > 0) {
                 return true;
@@ -90,7 +90,7 @@ class User{
             }
         } catch (err) {
             console.log(err);
-            return undefined;
+            return { status: false };
 
         }
     }
@@ -100,7 +100,7 @@ class User{
     async findById(id) {
 
         try {
-            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl, credits FROM users inner join userinfo on userId = id where id = ${id}`);
+            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl,FirstName, LastName, credits,role FROM users inner join userinfo on userId = id where id = ${id}`);
             
             
             if (result.length > 0) {
@@ -282,9 +282,10 @@ class User{
     
 
     async updateInfo(FirstName, LastName, userId){
-
+        
         try {
-            await knex.update({ FirstName, LastName }).where({ userId }).table('userinfo');
+            const updateInfoStatus = await knex.update({ FirstName, LastName }).where({ userId }).table('userinfo');
+            
             return { status: true }
         } catch (error) {
             return { status: false, error }
@@ -304,6 +305,15 @@ class User{
 
     }
 
+    async getActiveNotifications(userId){
+        try {
+            const notificationsList = await knex.select('*').where({ userId }).table('notifications');
+            return { status: true, notificationsList }
+        } catch (error) {
+            return { status: false, error }
+        }
+    }
+
     async getSearchListUser(wildCard, offset){
         try {
             let results = await knex.raw(`select users.id as id, username, convert(profilePhoto using utf8) as profilePhoto from users 
@@ -316,6 +326,27 @@ class User{
             return { status: false, error }
         }
     }
+
+
+    async changeUsername(userId, username){
+
+        const currentUser = await this.findById(userId);
+        const currentCredits = parseFloat(currentUser[0].credits);
+        const subCredits = `${(currentCredits - 10.00)}`;
+
+        try {
+            await knex.update({username}).where({id: userId}).table('users');
+            await knex.update({ credits: subCredits }).where({userId}).table('userinfo');
+            return {status: true, msg: 'username trocado com sucesso!'}
+        } catch (error) {
+            return { status: false, msg: 'não foi possível trocar username', error }
+
+        }
+
+
+
+    }
+    
 
 }
 

@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 //const transporter = require('')
 
 
-module.exports = async function(email, linkCode) {
+module.exports = async function (email, emailMsg, emailSubject) {
     // create reusable transporter object using the default SMTP transport
 
         console.log(email);
@@ -11,8 +11,8 @@ module.exports = async function(email, linkCode) {
             host: 'smtp.gmail.com',
             port: 587,
             auth: {
-                user: "maysondamarante@mswareg.com", // generated ethereal user
-                pass: "#Fabiano11", // generated ethereal password
+                user: process.env.USER_EMAIL, // generated ethereal user
+                pass: process.env.USER_PASS, // generated ethereal password
             },
             tls: {
                 rejectUnauthorized: false
@@ -37,8 +37,8 @@ module.exports = async function(email, linkCode) {
         var info = await transporter.sendMail({
             from: '<maysondamarante@mswareg.com>', // sender address
             to: email, // list of receivers
-            subject: "PASSWORD RECOVERY", // Subject line
-            text: `Clique no link para redefinir sua senha - ${linkCode} `
+            subject: emailSubject, // Subject line
+            text: emailMsg
         })
         console.log(info)
         return {status:true, msg: info};
