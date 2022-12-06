@@ -642,7 +642,7 @@ class HomeController{
     async listWithdrawalRequests(req, res){
         const offset = req.params.offset;
         try {
-            const request = await Home.listWithdrawalRequests(offset);;
+            const request = await Home.listWithdrawalRequests(offset);
             res.status(200)
             res.json(request.listWithdrawalRequests[0]);
         } catch (error) {
