@@ -7,10 +7,12 @@ module.exports = async function (req, res, next) {
     console.log('esta tentando autorizar');
     const userId = !!req.params.userId ? req.params.userId : req.body.userId
     console.log(userId);
+
+    console.log(authToken);
     if (authToken != undefined) {
         var bearer = authToken.split(' ');
         var token = bearer[1];
-        console.log(token)
+        
         
         try {
             const decoded = jwt.verify(token, process.env.SECRET);
