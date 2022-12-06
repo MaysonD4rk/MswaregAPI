@@ -599,7 +599,7 @@ order by sendletter.createdat
 
     async findWithdrawRequestByUserId(userId){
         try {
-            const withdrawRequest = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where withdrawalrequests.userId = ${userId};`)
+            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId};`)
             return { status: true, withdrawRequest: withdrawRequest[0] }
         } catch (error) {
             return { status: false, error }
@@ -609,7 +609,7 @@ order by sendletter.createdat
 
     async withdrawStatus(userId, status){
         try {
-            await knex.update({ status }).where({ userId }).table('withdrawalrequests');
+            await knex.update({ status }).where({ userId }).table('withdrawalRequests');
             if (status == 'done') {
                 return {status: true, statusMsg: 'Retirada foi feita com sucesso! em caso de problema, por favor entre em contato com o suporte :)'}
             }else if(status=='deny'){
