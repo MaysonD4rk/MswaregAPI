@@ -6,7 +6,7 @@ module.exports = async function (req, res, next) {
     const authToken = req.headers['authorization'];
     console.log('esta tentando autorizar');
     const userId = !!req.params.userId ? req.params.userId : req.body.userId
-
+    console.log(userId);
     if (authToken != undefined) {
         var bearer = authToken.split(' ');
         var token = bearer[1];
