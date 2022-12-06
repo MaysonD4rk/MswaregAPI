@@ -579,10 +579,12 @@ order by sendletter.createdat
     }
 
     async listWithdrawalRequests(offset){
+        console.log('ta caindo aqui')
         try {
             const listWithdrawalRequests = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where status IS NULL group by userId order by valueReq desc limit 30 offset ${offset};`);
             return { status: true, listWithdrawalRequests }
         } catch (error) {
+            console.log(error);
             return {status: false, error}
         }
     }

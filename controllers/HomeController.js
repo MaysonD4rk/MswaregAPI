@@ -640,6 +640,7 @@ class HomeController{
     }
     
     async listWithdrawalRequests(req, res){
+        console.log('ta tentando entrar em listWithdrawalRequests')
         const offset = req.params.offset;
         try {
             const request = await Home.listWithdrawalRequests(offset);
@@ -709,7 +710,8 @@ class HomeController{
                         res.json({ msg: 'Algo está errado...' })
                     }
                 } catch (error) {
-                    console.log(error)
+                    res.status(406);
+                    res.json({ msg: 'Algo está errado...' })
                 }
             }else{
                 res.status(406);
