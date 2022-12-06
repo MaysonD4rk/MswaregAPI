@@ -665,7 +665,7 @@ class HomeController{
                 try {
                     const request = await Home.withdrawRequest(userId, value);
                     res.status(200)
-                    res.json(request);
+                    res.json({request, msg: 'Request realizado'});
                 } catch (error) {
                     res.status(406)
                     res.json(error);
