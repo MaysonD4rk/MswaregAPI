@@ -10,8 +10,7 @@ module.exports = async function (req, res, next) {
     if (authToken != undefined) {
         var bearer = authToken.split(' ');
         var token = bearer[1];
-        
-
+        console.log(token)
         
         try {
             const decoded = jwt.verify(token, process.env.SECRET);
