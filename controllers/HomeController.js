@@ -699,13 +699,17 @@ class HomeController{
             const result = await Home.withdrawStatus(userId, status);
 
             if (result.status) {
-                var response = await sendEmail(`${email}`, result.statusMsg, "STATUS DE RETIRADA");
-                if (response.status) {
-                    res.status(200);
-                    res.json({ msg: 'Email enviado com sucesso' })
-                } else {
-                    res.status(406);
-                    res.json({ msg: 'Algo está errado...' })
+                try {
+                    var response = await sendEmail(`${email}`, result.statusMsg, "STATUS DE RETIRADA");
+                    if (response.status) {
+                        res.status(200);
+                        res.json({ msg: 'Email enviado com sucesso' })
+                    } else {
+                        res.status(406);
+                        res.json({ msg: 'Algo está errado...' })
+                    }
+                } catch (error) {
+                    console.log(error)
                 }
             }else{
                 res.status(406);
