@@ -590,7 +590,7 @@ order by sendletter.createdat
     }
     async withdrawRequest(userId, value){
         try {
-            await knex.insert({ userId, valueRequested: value}).table('withdrawalRequests');
+            await knex.insert({ userId, valueRequested: value, status: null}).table('withdrawalRequests');
             return {status: true}
         } catch (error) {
             return { status: false, error}
@@ -599,7 +599,17 @@ order by sendletter.createdat
 
     async findWithdrawRequestByUserId(userId){
         try {
-            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId};`)
+            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId} AND withdrawalRequests.status IS NULL;`)
+            return { status: true, withdrawRequest: withdrawRequest[0] }
+        } catch (error) {
+            return { status: false, error }
+        }
+    }
+
+    async withdrawRequestExist(userId) {
+        try {
+            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId} AND withdrawalRequests.status IS NULL;`)
+            
             return { status: true, withdrawRequest: withdrawRequest[0] }
         } catch (error) {
             return { status: false, error }
@@ -607,8 +617,9 @@ order by sendletter.createdat
     }
 
 
-    async withdrawStatus(userId, status){
+    async withdrawStatus(userId, status, newValue){
         try {
+            await knex.update({credits: newValue}).where({userId}).table('userinfo')
             await knex.update({ status }).where({ userId }).table('withdrawalRequests');
             if (status == 'done') {
                 return {status: true, statusMsg: 'Retirada foi feita com sucesso! em caso de problema, por favor entre em contato com o suporte :)'}

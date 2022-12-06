@@ -657,8 +657,9 @@ class HomeController{
         const value = parseFloat(req.body.value)
 
         try {
-            const requestById = await Home.findWithdrawRequestByUserId(userId);
-            if (requestById.withdrawRequest.length>0) {
+            const requestById = await Home.withdrawRequestExist(userId);
+            
+            if (requestById.withdrawRequest.length > 0) {
                 res.status(429)
                 res.json({status: 429,msg: "Você já realizou um pedido. Tente novamente ou mais tarde!"})
             }else{
@@ -696,8 +697,14 @@ class HomeController{
         const userId = req.body.userId;
         const status = req.body.status;
         const email = req.body.email;
+        const user = await User.findById(userId);
+        const requestById = await Home.findWithdrawRequestByUserId(userId);
+
+
+        const newValue = (parseFloat(user[0].credits) - parseFloat(requestById.withdrawRequest[0].valueReq));
+        
         try {
-            const result = await Home.withdrawStatus(userId, status);
+            const result = await Home.withdrawStatus(userId, status, newValue);
 
             if (result.status) {
                 try {
