@@ -100,7 +100,7 @@ class User{
     async findById(id) {
 
         try {
-            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl,FirstName, LastName, credits,role FROM users inner join userinfo on userId = id where id = ${id}`);
+            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl,FirstName, LastName, credits, pixKey,role FROM users inner join userinfo on userId = id where id = ${id}`);
             
             
             if (result.length > 0) {
@@ -281,10 +281,10 @@ class User{
     }
     
 
-    async updateInfo(FirstName, LastName, userId){
+    async updateInfo(FirstName, LastName, pixKey, userId){
         
         try {
-            const updateInfoStatus = await knex.update({ FirstName, LastName }).where({ userId }).table('userinfo');
+            const updateInfoStatus = await knex.update({ FirstName, LastName, pixKey }).where({ userId }).table('userinfo');
             
             return { status: true }
         } catch (error) {

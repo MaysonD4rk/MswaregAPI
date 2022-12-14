@@ -4,35 +4,59 @@ const knex = require('../database/connection');
 
 
 class PasswordToken{
-    async create(email){
+    async create(email, method){
         var user = await User.findByEmail(email);
 
-
-
+        
+        
         if (user != undefined) {
+            try {
+                console.log('entrou na parte de delete')
+                await knex.delete().where({ user_id: user.id, method }).table('passwordtokens');
+            } catch (error) {
+                console.log(error)
+            }
             //random numbers
-            var rn1 = ((Math.random() * 100000) + 1);
-            var rn2 = ((Math.random() * 100000) + rn1);
-            var rn = `${rn1+user+rn2}`;
-
+            var rn1 = Math.floor((Math.random() * 1000) + 1);
+            var rn2 = Math.floor((Math.random() * 1000) + rn1);
+            const rn = `${rn1+user+rn2}`;
+            const rnMthd2 = `${rn1}${rn2}`
+            
             try {
                 var token = await bcrypt.hash(rn, 10);
             } catch (err) {
                 console.log(err);
                 return;
             }
-
-            try {
-                await knex.insert({
-                    user_id: user.id,
-                    used: 0,
-                    token,
-                    createdAt: new Date()
-                }).table('passwordTokens')
-                return {status: true, token}
-            } catch (err) {
-                console.log(err);
-                return {status: false}
+            
+            if (method != 'updateUserInfo'){
+                try {
+                    await knex.insert({
+                        user_id: user.id,
+                        used: 0,
+                        token,
+                        method: 'recoverPass',
+                        createdAt: new Date()
+                    }).table('passwordTokens')
+                    return {status: true, token}
+                } catch (err) {
+                    console.log(err);
+                    return {status: false}
+                }
+            }else{
+                try {
+                    await knex.insert({
+                        user_id: user.id,
+                        used: 0,
+                        token: rnMthd2,
+                        method: 'updateUserInfo',
+                        createdAt: new Date()
+                    }).table('passwordTokens')
+                    return { status: true, token, hashedToken: rnMthd2 }
+                } catch (err) {
+                    console.log(err);
+                    return { status: false }
+                }
             }
                 
                 
@@ -44,23 +68,32 @@ class PasswordToken{
 
     }
 
-    async validate(token) {
+    async validate(token, method) {
         try {
             
-            var result = await knex.select().where({ token }).table("passwordTokens");
+            var result = await knex.select().where({ token, method }).table("passwordTokens");
 
-
-            if (result.length > 0) {
-                var tk = result[0];
-
-                if (!!tk.used) {
-                    return { status: false }
+            const resultDate = new Date(result[0].createdAt);
+            console.log(result[0].createdAt)
+            const currentDate = Date.now();
+            
+            if (((currentDate - resultDate)/1000/60)>3) {
+                await knex.delete().where({token, method}).table('passwordtokens');
+                return { status: false, msg: 'Esse código expirou, peça por um novo código :)' };
+            }else{
+                if (result.length > 0) {
+                    var tk = result[0];
+    
+                    if (!!tk.used) {
+                        return { status: false, msg: 'Código já foi usado' }
+                    } else {
+                        return { status: true, msg: 'Alteração concluída!', token: tk }
+                    }
                 } else {
-                    return { status: true, token: tk }
+                    return { status: false, msg: 'Código não existe' }
                 }
-            } else {
-                return { status: false }
             }
+
 
         } catch (err) {
             console.log(err);

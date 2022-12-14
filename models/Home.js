@@ -35,6 +35,36 @@ class Home {
 
     }
 
+    async editPub(pubContent){
+        console.log(pubContent)
+        if (pubContent.pubId != undefined && pubContent.title != undefined && pubContent.ideaSummary != undefined && pubContent.mainIdea != undefined && pubContent.categoryId != undefined) {
+
+            try {
+                var result = await knex.update({ categoryId: pubContent.categoryId, initialAmountRequired: pubContent.initialAmountRequired, allowFeedback: pubContent.allowFeedbacks }).where({id: pubContent.pubId} ).table('gamesideas');
+                console.log(result)
+                await knex.update({ title: pubContent.title, ideaSummary: pubContent.ideaSummary, mainIdea: pubContent.mainIdea }).where({ ideaId: pubContent.pubId }).table('gamesideascontent');
+                await knex.delete().where({ideaIdRef: pubContent.pubId}).table('images');
+                pubContent.images.forEach(async (url) => {
+                    try {
+                        await knex.insert({ url, ideaIdRef: pubContent.pubId }).table('images');
+                    } catch (error) {
+                        console.log(error)
+                    }
+                });
+                return { status: true, msg: result }
+            } catch (error) {
+                console.log(error)
+                return { status: false, msg: error }
+            }
+
+
+
+
+        } else {
+            return { status: false, msg: 'precisa preencher todos os requisitos!' };
+        }
+    }
+
     async listPub(offset, filter, userId){
 
         offset = offset == undefined || offset == NaN ? 0 : offset
@@ -251,6 +281,25 @@ class Home {
         }
 
 
+    }
+
+    async listTrendPub(){
+        try {
+            const result = await knex.raw(`SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, sum(investment) as investment
+                                FROM ${process.env.DATABASE}.gamesideas
+                                INNER JOIN ${process.env.DATABASE}.gamesideascontent
+                                ON gamesideas.id = gamesideascontent.ideaId
+                                left JOIN investments on investments.gameideaid = gamesideascontent.ideaid
+                                where gamesideas.categoryId = 11
+                                group by gamesideas.id
+                                order by id DESC
+                                limit 12
+                                ;`);
+            return {status: true, result: result[0]}
+            
+        } catch (error) {
+            return {status: false, result: error}
+        }
     }
 
     async findOnePub(id){

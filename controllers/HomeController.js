@@ -25,6 +25,7 @@ class HomeController{
         }
     }
 
+
     async findPubById(req, res){
         let id = req.params.id
         try {
@@ -39,9 +40,26 @@ class HomeController{
         }
     }
 
+    async listTrendPub(req, res){
+        try {
+            var pubList = await Home.listTrendPub()
+            console.log(pubList)
+            if (pubList.status) {
+                res.status(200);
+                res.json(pubList);
+            } else {
+                res.send(pubList.msg)
+                res.status(405);
+            }
+        } catch (error) {
+            res.status(400);
+            return res.send(error);
+        }
+    }
+
     async createPub(req, res){
 
-        var { title, ideaSummary, mainIdea, userId, categoryId, initialAmountRequired, images, allowFeedbacks } = req.body;
+        const { title, ideaSummary, mainIdea, userId, categoryId, initialAmountRequired, images, allowFeedbacks } = req.body;
 
         console.log(allowFeedbacks)
 
@@ -56,8 +74,25 @@ class HomeController{
             allowFeedbacks
         }
 
+        if (categoryId == 11) {
+            try {
+                const user = await User.findById(userId);
+                console.log(user[0].role)
+                if (user[0].role != 1) {
+                    res.status(403);
+                    res.json({msg: 'você não tem permissão para criar Trends'})
+                    return 
+                }
+            } catch (error) {
+                res.status(403);
+                res.json({ msg: 'Algo deu errado, perdão!' })
+                return 
+            }
+        }
+
 
         try {
+
             var create = await Home.createPub(pubContent);
             if (create.status) {
                 res.send(create.msg);
@@ -69,6 +104,50 @@ class HomeController{
         } catch (error) {
             res.send(error);
             res.status(500)
+        }
+    }
+
+    async editPub(req, res){
+        let {pubId, title, ideaSummary, mainIdea, userId, categoryId, initialAmountRequired, images, allowFeedbacks } = req.body;
+
+        if (categoryId == 11) {
+            try {
+                const user = await User.findById(userId);
+                if (user[0].role != 1) {
+                    res.status(403);
+                    res.json({ msg: 'você não tem permissão para criar Trends' })
+                }
+            } catch (error) {
+                res.status(403);
+                res.json({ msg: 'Algo deu errado, perdão!' })
+            }
+        }
+        
+        let pubContent = {
+            pubId,
+            title,
+            ideaSummary,
+            mainIdea,
+            userId,
+            categoryId,
+            initialAmountRequired,
+            images,
+            allowFeedbacks
+        }
+        
+        
+        try {
+            var update = await Home.editPub(pubContent);
+            if (update.status) {
+                res.status(200);
+                res.json(update.msg);
+            } else {
+                res.status(400);
+                res.json(update.msg);
+            }
+        } catch (error) {
+            res.status(500)
+            res.send(error);
         }
     }
 

@@ -16,7 +16,7 @@ module.exports = async function (req, res, next) {
         
         try {
             const decoded = jwt.verify(token, process.env.SECRET);
-            
+            console.log(decoded)
             const user = await User.findByEmail(decoded.email);
             if (user.id == userId) {
                 const result = await bcrypt.compare(decoded.password, user.password)
@@ -26,13 +26,13 @@ module.exports = async function (req, res, next) {
                     next();
                 } else {
                     res.status(403);
-                    res.send('você não tem permissão para entrar aqui!');
+                    res.send('você não tem permissão para entrar aqui! Caiu no primeiro');
                     return;
                 }
                 
             }else{
                 res.status(403);
-                res.send('você não tem permissão para entrar aqui!');
+                res.send('você não tem permissão para entrar aqui! Caiu no segundo');
                 return;
             }
         } catch (err) {

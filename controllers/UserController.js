@@ -131,7 +131,7 @@ class UserController{
         var email = req.body.email;
         
 
-        var result = await passwordToken.create(email);
+        var result = await passwordToken.create(email, 'recoverPass');
 
         if (result.status) {
             const emailMsg = `Clique no link para redefinir sua senha - http://localhost:8080/recovery/?token=${result.token}&email=${email}`
@@ -162,7 +162,7 @@ class UserController{
         console.log('chegou aqui')
         var user = User.findByEmail(email);
         
-        var result = await passwordToken.validate(token);
+        var result = await passwordToken.validate(token, 'recoverPass');
 
         if (user != undefined) {
 
@@ -170,7 +170,7 @@ class UserController{
                 try {
                     var changeStatus = await User.changePass(email, password);
                     res.status(200)
-                    res.send('deu certo')
+                    res.send(result.msg)
                 } catch (error) {
                     res.send('deu errado')
                     res.status(400);                    
@@ -203,11 +203,11 @@ class UserController{
     }
 
     async updateUserInfo(req, res){
-        var id = req.body.id;
+        var userId = req.body.userId;
         var aboutMe = req.body.aboutMe;
 
         try {
-            var update = await User.updateuserinfo(id, aboutMe)
+            var update = await User.updateuserinfo(userId, aboutMe)
             
             if (update.status) {
                 res.status(200)
@@ -249,20 +249,59 @@ class UserController{
 
     }
 
+    async updateInfoCode(req, res) {
+        const email = req.body.email;
+        const userId = req.body.userId
+        console.log('chegou aqui pelo menos')
+        var result = await passwordToken.create(email, 'updateUserInfo');
+
+        if (result.status) {
+            const emailMsg = `O código é: ${result.hashedToken}`
+            try {
+                console.log('chegou aqui');
+                var response = await sendEmail(`${email}`, emailMsg, "Código para alterar informações.");
+                console.log(response);
+                if (response.status) {
+                    res.status(200);
+                    res.json({ msg: 'deu certo' })
+                } else {
+                    res.status(406);
+                    res.json({ msg: 'deu errado' })
+                }
+            } catch (error) {
+                res.status(400)
+                res.json({ error })
+            }
+        } else {
+            res.status(406)
+            res.send(result.err);
+        }
+
+    }
 
     async updateInfo(req, res){
         let FirstName = req.body.FirstName; 
         let LastName = req.body.LastName; 
         let userId = req.body.userId
+        let pixKey = req.body.pixKey
+        let token = req.body.token;
 
+        const result = await passwordToken.validate(token, 'updateUserInfo');
+        console.log(result)
         try {
-            const updatestatus = await User.updateInfo(FirstName, LastName, userId)
-            
-            if (updatestatus.status) {
-                res.json({ msg: 'nome alterado com sucesso hehe' })
-                res.status(200)
+            if (result.status) {
+                const updatestatus = await User.updateInfo(FirstName, LastName, pixKey, userId)
+                
+                if (updatestatus.status) {
+                    res.status(200)
+                    await passwordToken.setUsed(token);
+                    res.json({ msg: result.msg })
+                }else{
+                    res.json({msg: result.msg})
+                    res.status(406);
+                }
             }else{
-                res.json(error)
+                res.json({msg: result.msg})
                 res.status(406);
             }
         } catch (error) {

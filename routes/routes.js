@@ -15,7 +15,9 @@ router.post('/login', UserController.login);
 router.post('/passrecovery',UserController.recoverPassword);
 router.post('/changePass',UserController.changePassword);
 router.get('/home/:userId/:offset/:filter', HomeController.index);
-router.post('/pub', VerifyIdentity,HomeController.createPub); 
+router.get('/listTrendPub', HomeController.listTrendPub)
+router.post('/pub', VerifyIdentity,HomeController.createPub);
+router.put('/pub', VerifyIdentity, HomeController.editPub);
 router.get('/findPub/:id', HomeController.findPubById);
 router.get('/listMsgs/:offset',HomeController.sendMsgList);
 router.get('/searchMsgList/:offset/:wildcard', HomeController.searchMsgList);
@@ -52,6 +54,7 @@ router.put('/updatePass', VerifyIdentity, UserController.updatePass);
 router.put('/updatePhotoProfile', VerifyIdentity,UserController.updatePhotoProfile)
 router.put('/updateIdeaPhoto', VerifyIdentity,HomeController.updateIdeaPhoto)
 router.put('/updateInfo', VerifyIdentity,UserController.updateInfo)
+router.post('/updateInfoToken', VerifyIdentity, UserController.updateInfoCode);
 router.put('/updateNotifications', VerifyIdentity, UserController.updateNotifications)
 router.put('/disableIdea', AdminAuth, HomeController.disableIdea);
 router.put('/releaseIdea', AdminAuth, HomeController.releaseIdea);
