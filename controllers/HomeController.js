@@ -259,10 +259,11 @@ class HomeController{
         try {
             var result = await User.getCredits(userId)
             
-            newValue = (parseFloat(result.result[0].credits)-credits)
-            if (newValue <= 0) {
+            newValue = (result.result[0].credits-credits)
+            console.log(newValue)
+            if (newValue < 0 || newValue >= result.result[0].credits) {
                 res.status(406)
-                res.json({ status: 406, msg: "saldo insuficiente" })
+                res.json({ status: 406, msg: "Não é possivel" })
             }else{
                 try {
                     await Home.updateCredits(userId, newValue)

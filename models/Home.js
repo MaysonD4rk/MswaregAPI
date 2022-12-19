@@ -348,6 +348,11 @@ class Home {
 
     async updateCredits(userId, credits){
 
+        if (credits < 0.1) {
+            credits = 0
+        }
+        console.log(credits)
+
         try {
             await knex.update({credits: `${credits}`}).where({userId}).table('userinfo');
             return {status: true, msg: "atualizado com sucesso"}

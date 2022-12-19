@@ -346,6 +346,57 @@ class User{
 
 
     }
+
+    async userHelpInfo(userId){
+        const info = {}
+        function returnIncrease(value) {
+            var result = (2.5 / 100) * value;
+            return result
+        }
+        try {
+            const totalInvestment = await knex('investments')
+                    .where({userId})
+                    .sum('investment as totalInvestiment')
+                    .first()
+            const totalInvestmentByCharge = await knex('charge')
+                    .where({ userId, chargeStatus: 'pago' })
+                    .sum('chargeValue as totalChargeValue')
+                    .first();
+
+            const countIdeasHelped = await knex('investments')
+                .where({userId})
+                .countDistinct('gameIdeaId as countGameIdea')
+                .first();
+            const madeIdeas = await knex('gamesideas')
+                .where({ userId })
+                .count('id as countIdeas')
+                .first();
+
+            const countIdeaLikes = await knex('gameideainteraction')
+                .join('gamesideas', 'gameideainteraction.gameIdeaId', 'gamesideas.id')
+                .where('gamesideas.userId', userId)
+                .where('liked', true)
+                .count('gameideainteraction.userId as countLikes')
+                .first()
+            
+                let totalChargeValue = !!totalInvestmentByCharge.totalChargeValue ? totalInvestmentByCharge.totalChargeValue: 0;
+            totalChargeValue = returnIncrease(totalChargeValue);
+            info.totalInvestiment = parseFloat(totalInvestment.totalInvestiment + totalChargeValue)
+            info.ideaHelped = countIdeasHelped.countGameIdea
+            info.madeIdeas = madeIdeas.countIdeas
+            info.countIdeaLikes = countIdeaLikes.countLikes
+            
+
+            return { status: true, info }
+            // - done - select count(gameideainteraction.userId) from gameideainteraction inner join gamesideas on gameIdeaId = gamesideas.id where gamesideas.userId = 20 AND liked = true;
+            // - done - select count(id) from gamesideas where userId = 20; 
+            // - done - select count(DISTINCT gameIdeaId) as count from investments where userId = 20;
+            // - done - select * from charge;
+            // - done - select userId, sum(investment) as totalInvestment from investments where userId = 20;
+        } catch (error) {
+            console.log(error)
+        }
+    }
     
 
 }

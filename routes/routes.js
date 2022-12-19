@@ -23,6 +23,7 @@ router.get('/listMsgs/:offset',HomeController.sendMsgList);
 router.get('/searchMsgList/:offset/:wildcard', HomeController.searchMsgList);
 router.get('/searchForMsg/:offset/:wildcard', HomeController.searchForMsg);
 router.get('/searchUser/:wildcard', HomeController.searchUser);
+router.get('/userHelpInfo/:userId', UserController.userHelpInfo);
 router.get('/searchPost/:offset/:wildcard',HomeController.searchPost);
 router.get('/listFeedbacks/:userId/:offset', HomeController.listFeedbacks);
 router.get('/listReports/:offset', AdminAuth, HomeController.listReports);

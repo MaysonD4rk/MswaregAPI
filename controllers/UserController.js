@@ -460,6 +460,19 @@ class UserController{
         }
     }
 
+    async userHelpInfo(req, res){
+        const userId = req.params.userId;
+
+        try {
+            const userInfo= await User.userHelpInfo(userId);
+            res.status(200);
+            res.json(userInfo)
+        } catch (error) {
+            res.status(406);
+            res.json(error)
+        }
+    }
+
 }
 
 module.exports = new UserController()
