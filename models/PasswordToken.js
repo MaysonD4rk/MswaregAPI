@@ -51,7 +51,7 @@ class PasswordToken{
                         token: rnMthd2,
                         method: 'updateUserInfo',
                         createdAt: new Date()
-                    }).table('passwordTokens')
+                    }).table('passwordtokens')
                     return { status: true, token, hashedToken: rnMthd2 }
                 } catch (err) {
                     console.log(err);
