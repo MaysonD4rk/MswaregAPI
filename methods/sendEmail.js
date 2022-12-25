@@ -13,8 +13,8 @@ module.exports = async function (email, emailMsg, emailSubject) {
             host: 'smtp.gmail.com',
             port: 587,
             auth: {
-                user: `${process.env.USER_EMAIL}`, // generated ethereal user
-                pass: `${process.env.USER_PASS}`, // generated ethereal password
+                user: process.env.USER_EMAIL, // generated ethereal user
+                pass: process.env.USER_PASS, // generated ethereal password
             },
             tls: {
                 rejectUnauthorized: false
