@@ -1,21 +1,19 @@
 "use strict";
 const nodemailer = require("nodemailer");
 //const transporter = require('')
-const dotenv = require('dotenv');
-dotenv.config();
+const emailSender = process.env.USER_EMAIL
+const passSender = process.env.USER_PASS
 
 module.exports = async function (email, emailMsg, emailSubject) {
     // create reusable transporter object using the default SMTP transport
 
         console.log(email);
-        console.log(process.env.USER_EMAIL)
-        console.log(process.env.USER_PASS)
         var transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
             auth: {
-                user: process.env.USER_EMAIL, // generated ethereal user
-                pass: process.env.USER_PASS, // generated ethereal password
+                user: emailSender, // generated ethereal user
+                pass: passSender, // generated ethereal password
             },
             tls: {
                 rejectUnauthorized: false
