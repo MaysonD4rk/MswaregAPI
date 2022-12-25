@@ -70,9 +70,9 @@ class PasswordToken{
 
     async validate(token, method) {
         try {
-            
-            var result = await knex.select().where({ token, method }).table("passwordTokens");
-
+            console.log(token, method)
+            var result = await knex.select("*").where({ token: token, method: method }).table("passwordtokens");
+            console.log(result)
             const resultDate = new Date(result[0].createdAt);
             console.log(result[0].createdAt)
             const currentDate = Date.now();
