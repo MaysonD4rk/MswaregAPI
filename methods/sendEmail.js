@@ -12,8 +12,8 @@ module.exports = async function (email, emailMsg, emailSubject) {
             host: 'smtp.gmail.com',
             port: 587,
             auth: {
-                user: emailSender, // generated ethereal user
-                pass: passSender, // generated ethereal password
+                user: "maysondamarante@mswareg.com", // generated ethereal user
+                pass: "SHMt5*kLqe7qLVrtgvq9B3qPj9gNnZN7#H$*5w", // generated ethereal password
             },
             tls: {
                 rejectUnauthorized: false
