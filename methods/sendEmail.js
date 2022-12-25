@@ -1,7 +1,8 @@
 "use strict";
 const nodemailer = require("nodemailer");
 //const transporter = require('')
-
+const dotenv = require('dotenv');
+dotenv.config();
 
 module.exports = async function (email, emailMsg, emailSubject) {
     // create reusable transporter object using the default SMTP transport
