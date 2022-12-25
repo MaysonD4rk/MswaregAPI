@@ -37,7 +37,7 @@ class PasswordToken{
                         token,
                         method: 'recoverPass',
                         createdAt: new Date()
-                    }).table('passwordTokens')
+                    }).table('passwordtokens')
                     return {status: true, token}
                 } catch (err) {
                     console.log(err);
