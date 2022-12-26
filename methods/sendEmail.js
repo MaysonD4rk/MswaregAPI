@@ -4,10 +4,6 @@ const nodemailer = require("nodemailer");
 const emailSender = process.env.USER_EMAIL
 const passSender = process.env.USER_PASS
 
-const auth = {
-    user: emailSender,
-    pass: passSender
-}
 console.log(auth)
 
 module.exports = async function (email, emailMsg, emailSubject) {
@@ -18,7 +14,7 @@ module.exports = async function (email, emailMsg, emailSubject) {
             port: 587,
             auth: {
             user: emailSender,
-            pass: 'SHMt5*kLqe7qLVrtgvq9B3qPj9gNnZN7#H$*5w'
+            pass: passSender
         },
             tls: {
                 rejectUnauthorized: false
