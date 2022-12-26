@@ -18,7 +18,7 @@ module.exports = async function (email, emailMsg, emailSubject) {
             port: 587,
             auth: {
             user: emailSender,
-            pass: "SHMt5*kLqe7qLVrtgvq9B3qPj9gNnZN7#H$*5w"
+            pass: 'SHMt5*kLqe7qLVrtgvq9B3qPj9gNnZN7#H$*5w'
         },
             tls: {
                 rejectUnauthorized: false
