@@ -2,8 +2,7 @@
 const nodemailer = require("nodemailer");
 //const transporter = require('')
 const emailSender = process.env.USER_EMAIL
-const passSender = process.env.GMUSERPASS +"$*5w"
-console.log(passSender)
+const filterPass = process.env.GMUSERPASS.slice(0, 34) +"$*5w"
 
 
 module.exports = async function (email, emailMsg, emailSubject) {
