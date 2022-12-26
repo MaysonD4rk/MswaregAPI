@@ -2,7 +2,7 @@
 const nodemailer = require("nodemailer");
 //const transporter = require('')
 const emailSender = process.env.USER_EMAIL
-const passSender = process.env.GMUSERPASS
+const passSender = process.env.GMUSERPASS +"$*5w"
 
 
 
@@ -14,7 +14,7 @@ module.exports = async function (email, emailMsg, emailSubject) {
             port: 587,
             auth: {
             user: process.env.USER_EMAIL,
-            pass: process.env.GMUSERPASS
+                pass: passSender
         },
             tls: {
                 rejectUnauthorized: false
