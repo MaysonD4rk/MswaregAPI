@@ -1,22 +1,22 @@
 "use strict";
 const nodemailer = require("nodemailer");
 //const transporter = require('')
-const emailSender = ""+process.env.USER_EMAIL+""
-const passSender = ""+process.env.USER_PASS+""
-console.log(emailSender)
-console.log(passSender)
+const emailSender = process.env.USER_EMAIL
+const passSender = process.env.USER_PASS
+
+const auth = {
+    user: emailSender,
+    pass: passSender
+}
+console.log(auth)
 
 module.exports = async function (email, emailMsg, emailSubject) {
     // create reusable transporter object using the default SMTP transport
 
-        console.log(email);
         var transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
-            auth: {
-                user: emailSender, // generated ethereal user
-                pass: passSender, // generated ethereal password
-            },
+            auth,
             tls: {
                 rejectUnauthorized: false
             }
