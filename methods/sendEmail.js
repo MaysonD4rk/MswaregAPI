@@ -1,8 +1,8 @@
 "use strict";
 const nodemailer = require("nodemailer");
 //const transporter = require('')
-const emailSender = ""+process.env.USER_EMAIL+""
-const passSender = "" + process.env.USER_PASS + ""
+const emailSender = process.env.USER_EMAIL
+const passSender = process.env.USER_PASS
 
 const auth = {
     user: emailSender,
@@ -16,7 +16,10 @@ module.exports = async function (email, emailMsg, emailSubject) {
         var transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
-            auth,
+            auth: {
+            user: "maysondamarante@mswareg.com",
+            pass: passSender
+        },
             tls: {
                 rejectUnauthorized: false
             }
