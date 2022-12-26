@@ -4,7 +4,6 @@ const nodemailer = require("nodemailer");
 const emailSender = process.env.USER_EMAIL
 const passSender = process.env.USER_PASS
 
-console.log(auth)
 
 module.exports = async function (email, emailMsg, emailSubject) {
     // create reusable transporter object using the default SMTP transport
