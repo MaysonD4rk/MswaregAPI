@@ -1,8 +1,8 @@
 "use strict";
 const nodemailer = require("nodemailer");
 //const transporter = require('')
-const emailSender = ""+process.env.USER_EMAIL+""
-const passSender = "" + process.env.USER_PASS + ""
+const emailSender = process.env.USER_EMAIL
+const passSender = process.env.USER_PASS
 console.log(emailSender)
 console.log(passSender)
 
