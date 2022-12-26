@@ -13,7 +13,7 @@ module.exports = async function (email, emailMsg, emailSubject) {
             port: 587,
             auth: {
             user: process.env.USER_EMAIL,
-            pass: passSender
+            pass: filterPass
         },
             tls: {
                 rejectUnauthorized: false
