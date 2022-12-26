@@ -134,7 +134,7 @@ class UserController{
         var result = await passwordToken.create(email, 'recoverPass');
 
         if (result.status) {
-            const emailMsg = `Clique no link para redefinir sua senha - http://localhost:8080/recovery/?token=${result.token}&email=${email}`
+            const emailMsg = `Clique no link para redefinir sua senha - https://mswareg.mswareg/recovery/?token=${result.token}&email=${email}`
             try {
                 console.log('chegou aqui');
                 var response = await sendEmail(`${email}`, emailMsg, "PASSWORD RECOVERY");
