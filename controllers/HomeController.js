@@ -355,7 +355,7 @@ class HomeController{
             }else{
                 try {
                     let tryLike = await Home.likeFavoriteIdea(pubId, userId)
-                    return res.json({ tryLike })
+                    return res.json({ tryLike: {status: true} })
                 } catch (error) {
                     return res.json({error})
                 }
