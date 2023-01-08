@@ -9,9 +9,18 @@ class User{
     async new(username, email, password){
         try {
             var hash = await bcrypt.hash(password, 10);
+
+            function selecionarLetraAleatoria() {
+                const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+                const indiceAleatorio = Math.floor(Math.random() * letras.length);
+                const letraAleatoria = letras.charCodeAt(indiceAleatorio);
+                return String.fromCharCode(letraAleatoria);
+            }
+
+            const personalCode = selecionarLetraAleatoria() + selecionarLetraAleatoria() + selecionarLetraAleatoria() + selecionarLetraAleatoria() + "-" + selecionarLetraAleatoria() + selecionarLetraAleatoria() + selecionarLetraAleatoria() + selecionarLetraAleatoria();
             
-            var newUser = await knex.insert({ username, email, password: hash, createdAt: new Date(), role: 0, updatedAt: new Date() }).table('users');
-            await knex.insert({ userId: newUser[0], credits: 0 }).table('userinfo');
+            var newUser = await knex.insert({ username, email, password: hash, createdAt: new Date(), personalCode,role: 0, updatedAt: new Date() }).table('users');
+            await knex.insert({ userId: newUser[0], credits: 0, currentcode: personalCode }).table('userinfo');
             await knex.insert({ userId: newUser[0], IN1_notification: false, IN2_notification: false, IN3_notification: false, FN1_notification: false, FN2_notification: false, FN3_notification: false, }).table('notifications');
             return {status: true, id: newUser[0]}
         } catch (err) {
@@ -100,7 +109,7 @@ class User{
     async findById(id) {
 
         try {
-            var result = await knex.raw(`SELECT id, username, email, convert(profilePhoto using utf8) as profilePhotoUrl,FirstName, LastName, credits, pixKey,role FROM users inner join userinfo on userId = id where id = ${id}`);
+            var result = await knex.raw(`SELECT id, username, email,personalCode,currentcode, convert(profilePhoto using utf8) as profilePhotoUrl,FirstName, LastName, credits, pixKey,role FROM users inner join userinfo on userId = id where id = ${id}`);
             
             
             if (result.length > 0) {
@@ -395,6 +404,17 @@ class User{
             // - done - select userId, sum(investment) as totalInvestment from investments where userId = 20;
         } catch (error) {
             console.log(error)
+        }
+    }
+
+
+    async updatePersonalCode(userId, code){
+        try {
+            await knex.update({currentcode: code}).where({userId}).table('userinfo');
+            return {status: true}
+        } catch (error) {
+            console.log(error)
+            return {status: false, error}
         }
     }
     

@@ -363,14 +363,24 @@ class Home {
 
     }
 
-    async donateCredits(userId, projectId, credits){
+    async donateCredits(userId, projectId, credits, investmentMsg, currentcode){
 
-        
 
         if (userId != undefined && projectId != undefined ) {
             
             try {
-                await knex.insert({ userId: userId, investment: credits, gameIdeaId: projectId, createdAt: new Date() }).table('investments');
+                await knex.insert({ userId: userId, investment: credits, investmentMsg, gameIdeaId: projectId, codeUsed: currentcode, createdAt: new Date() }).table('investments');
+                const userCode = await knex
+                                        .select('id','username','personalcode','credits')
+                                        .from('users')
+                                        .join('userinfo', 'users.id', 'userinfo.userId')
+                                        .where('personalcode', '=', currentcode)
+                                        .first()
+                
+                console.log(userCode.credits)
+                await knex.update({credits: `${parseFloat(parseFloat(userCode.credits)+ ((credits*1)/100))}`}).where({userId: userCode.id}).table('userinfo');
+                
+
                 return { status: true, msg: "doado com sucesso" }
             } catch (error) {
                 return { status: false, msg: error }
@@ -383,7 +393,7 @@ class Home {
 
     async listDonates(pubId){
         try {
-            let result = await knex.raw(`SELECT convert(profilePhoto using utf8)as profilePhoto,users.username, investments.userId, investments.investment
+            let result = await knex.raw(`SELECT investments.id as id, convert(profilePhoto using utf8)as profilePhoto,users.username, investments.userId, investments.investment
                                         FROM ${process.env.DATABASE}.investments
                                         INNER JOIN users
                                         ON users.id = investments.userId 
@@ -395,10 +405,24 @@ class Home {
         }
     }
 
+    async getOneDonate(investmentId){
+        try {
+            let result = await knex.select('*').where({id: investmentId}).table('investments').first()
 
-    async likeIdea(pubId, userId){
+            return { status: true, result }
+        } catch (error) {
+            return error;
+        }
+    }
+
+
+    async likeFavoriteIdea(pubId, userId, action='like'){
             try {
-                let like = await knex.insert({userId, gameIdeaId: pubId, liked: true, likedAt: new Date()}).table('gameideainteraction')
+                if (action=='like') {
+                    let like = await knex.insert({userId, gameIdeaId: pubId, liked: true, likedAt: new Date()}).table('gameideainteraction');
+                }else{
+                    let favorite = await knex.insert({ userId, gameIdeaId: pubId, liked: true, favoritedIdea: true,likedAt: new Date() }).table('gameideainteraction');
+                }
                 return {status: true, like}        
             } catch (error) {
                 return error
@@ -681,7 +705,7 @@ order by sendletter.createdat
                 return { status: true, statusMsg: 'Sua solicitação de retirada foi negada! Por favor solicite novamente e não se esqueça de cadastrar sua chave pix corretamente. :)' }
             }
         } catch (error) {
-            return { status: false, error }
+            return { status: false, statusMsg: error }
         }
     }
 

@@ -473,6 +473,22 @@ class UserController{
         }
     }
 
+    async updatePersonalCode(req, res){
+        const {userId, code} = req.body
+        try {
+            const updateCurrentCode = await User.updatePersonalCode(userId, code);
+            if (updateCurrentCode.status) {
+                res.status(200)
+                res.send('atualizado com sucesso');
+            }else{
+                console.log('hmmm, acho que não')
+            }
+        } catch (error) {
+            res.status(406);
+            res.send(error);
+        }
+    }
+
 }
 
 module.exports = new UserController()

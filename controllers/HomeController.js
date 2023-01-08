@@ -3,6 +3,7 @@ const app = express();
 const Home = require('../models/Home');
 const SAM = require('../models/SAMmodel');
 const User = require('../models/User');
+const sendEmail = require('../methods/sendEmail');
 
 class HomeController{
     async index(req, res){
@@ -251,7 +252,7 @@ class HomeController{
     }
 
     async donateCredits(req, res){
-        var {userId, projectId, credits} = req.body;
+        var {userId, projectId, credits, investmentMsg, currentcode} = req.body;
 
         var newValue = 0;
         
@@ -260,14 +261,14 @@ class HomeController{
             var result = await User.getCredits(userId)
             
             newValue = (result.result[0].credits-credits)
-            console.log(newValue)
+
             if (newValue < 0 || newValue >= result.result[0].credits) {
                 res.status(406)
                 res.json({ status: 406, msg: "Não é possivel" })
             }else{
                 try {
                     await Home.updateCredits(userId, newValue)
-                    var result = await Home.donateCredits(userId, projectId, credits)
+                    var result = await Home.donateCredits(userId, projectId, credits, investmentMsg, currentcode)
                     if (result.status) {
                         res.json({msg: "contribuição feita, obrigado!"})
                         res.status(200)
@@ -310,6 +311,25 @@ class HomeController{
         }
     }
 
+    async getOneDonate(req,res){
+        var investmentId = req.params.investmentId;
+
+        try {
+            let result = await Home.getOneDonate(investmentId)
+            if (result.status) {
+                res.status(200)
+                res.json({ result })
+            } else {
+                console.log(result)
+                res.status(406)
+                res.json({ msg: 'algo está errado!' })
+            }
+        } catch (error) {
+            res.status(406)
+            res.json({ error })
+        }
+    }
+
     async likePub(req, res){
         let {pubId, userId} = req.body;
 
@@ -334,7 +354,7 @@ class HomeController{
                 }
             }else{
                 try {
-                    let tryLike = await Home.likeIdea(pubId, userId)
+                    let tryLike = await Home.likeFavoriteIdea(pubId, userId)
                     return res.json({ tryLike })
                 } catch (error) {
                     return res.json({error})
@@ -353,15 +373,25 @@ class HomeController{
 
         try {
             var checkFavorite = await Home.checkLikeFavorite(pubId, userId);
-                
+            console.log(checkFavorite)
             
-            if(checkFavorite.row[0].favoritedIdea){
-                await Home.updateIdeaInteraction(userId, pubId, 'favoriteOff')
-                return res.json({msg: 'unfavorited'})
+            if (checkFavorite.status) {
+                if(!!checkFavorite.row[0].favoritedIdea){
+                    await Home.updateIdeaInteraction(userId, pubId, 'favoriteOff')
+                    return res.json({msg: 'unfavorited'})
+                }else{
+                    await Home.updateIdeaInteraction(userId, pubId, 'favorite')
+                    return res.json({ msg: 'favorited' })
+    
+                }
             }else{
-                await Home.updateIdeaInteraction(userId, pubId, 'favorite')
-                return res.json({ msg: 'favorited' })
-
+                try {
+                    await Home.likeFavoriteIdea(pubId, userId, 'favorite');
+                    await Home.updateIdeaInteraction(userId, pubId, 'favorite')
+                    return res.json({ msg: 'favorited' })
+                } catch (error) {
+                    console.log(error);
+                }
             }
 
             
@@ -612,6 +642,7 @@ class HomeController{
     async deleteFeedkback(req,res){
         let id = req.params.feedbackId;
         let userId = req.params.userId
+        console.log('chegou aqui')
         try {
             let getFeedback = await Home.getFeedbackById(id);
             const onePub = await Home.findOnePub(getFeedback.result[0][0].ideaId);
@@ -779,7 +810,7 @@ class HomeController{
         const email = req.body.email;
         const user = await User.findById(userId);
         const requestById = await Home.findWithdrawRequestByUserId(userId);
-
+        console.log(email)
 
         const newValue = (parseFloat(user[0].credits) - parseFloat(requestById.withdrawRequest[0].valueReq));
         
@@ -789,12 +820,13 @@ class HomeController{
             if (result.status) {
                 try {
                     var response = await sendEmail(`${email}`, result.statusMsg, "STATUS DE RETIRADA");
+                    
                     if (response.status) {
                         res.status(200);
                         res.json({ msg: 'Email enviado com sucesso' })
                     } else {
                         res.status(406);
-                        res.json({ msg: 'Algo está errado...' })
+                        res.json({ response })
                     }
                 } catch (error) {
                     res.status(406);

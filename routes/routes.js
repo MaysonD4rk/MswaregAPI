@@ -35,13 +35,14 @@ router.get('/countPosts/:userId', HomeController.countPosts);
 router.get('/profilePageContentList/:userid/:offset', HomeController.profilePageContentList);
 router.get('/listWithdrawalRequests/:offset', AdminAuth,HomeController.listWithdrawalRequests);
 router.get('/findWithdrawRequestByUserId/:userId', AdminAuth,HomeController.findWithdrawRequestByUserId);
+router.get('/listDonates/:pubId', HomeController.listDonates);
+router.get('/getOneDonate/:investmentId', HomeController.getOneDonate);
 router.post('/sendReport', VerifyIdentity,HomeController.sendReport);
 router.post('/sendFeedback', VerifyIdentity,HomeController.sendFeedback);
 router.post('/writeMsg', VerifyIdentity,HomeController.writeMsg);
 router.post('/donateCredits', VerifyIdentity,HomeController.donateCredits);
 router.post('/followUser', VerifyIdentity,UserController.followUser)
 router.post('/withdrawRequest', VerifyIdentity,HomeController.withdrawRequest);
-router.get('/listDonates/:pubId', HomeController.listDonates);
 router.put('/favoritePub', VerifyIdentity,HomeController.favoritePub);
 router.put('/likePub', VerifyIdentity,HomeController.likePub);
 router.get('/checkLikeFavorite/:pubId/:userId', HomeController.checkLikeFavorite);
@@ -61,5 +62,6 @@ router.put('/disableIdea', AdminAuth, HomeController.disableIdea);
 router.put('/releaseIdea', AdminAuth, HomeController.releaseIdea);
 router.put('/withdrawstatus', AdminAuth, HomeController.withdrawStatus);
 router.put('/changeUsername', VerifyIdentity, UserController.changeUsername);
+router.put('/updatePersonalCode', VerifyIdentity, UserController.updatePersonalCode);
 
 module.exports = router
