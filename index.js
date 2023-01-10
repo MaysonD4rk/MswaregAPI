@@ -8,7 +8,7 @@ const router = require('./routes/routes');
 const cors = require('cors')
 
 app.use(express.urlencoded({ limit: '100mb', extended: true}));
-app.use(cors());
+app.use(cors({ origin: '*' }))
 app.use(express.json({limit: '100mb'}));
 app.use('/', router);
 
