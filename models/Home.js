@@ -659,7 +659,7 @@ order by sendletter.createdat
     async listWithdrawalRequests(offset){
         console.log('ta caindo aqui')
         try {
-            const listWithdrawalRequests = await knex.raw(`select withdrawalRequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where status IS NULL group by userId order by valueReq desc limit 30 offset ${offset};`);
+            const listWithdrawalRequests = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where status IS NULL group by userId order by valueReq desc limit 30 offset ${offset};`);
             return { status: true, listWithdrawalRequests }
         } catch (error) {
             console.log(error);
@@ -668,7 +668,7 @@ order by sendletter.createdat
     }
     async withdrawRequest(userId, value){
         try {
-            await knex.insert({ userId, valueRequested: value, status: null}).table('withdrawalRequests');
+            await knex.insert({ userId, valueRequested: value, status: null}).table('withdrawalrequests');
             return {status: true}
         } catch (error) {
             return { status: false, error}
@@ -677,7 +677,7 @@ order by sendletter.createdat
 
     async findWithdrawRequestByUserId(userId){
         try {
-            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId} AND withdrawalRequests.status IS NULL;`)
+            const withdrawRequest = await knex.raw(`select withdrawalrequests.id as id, users.email,userinfo.userId, credits, FirstName, Lastname, pixKey, sum(valueRequested) as valueReq from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where withdrawalrequests.userId = ${userId} AND withdrawalrequests.status IS NULL;`)
             return { status: true, withdrawRequest: withdrawRequest[0] }
         } catch (error) {
             return { status: false, error }
@@ -686,7 +686,7 @@ order by sendletter.createdat
 
     async withdrawRequestExist(userId) {
         try {
-            const withdrawRequest = await knex.raw(`select withdrawalRequests.id as id from withdrawalRequests left join userinfo on userinfo.userId = withdrawalRequests.userId left join users on users.id = withdrawalRequests.userId where withdrawalRequests.userId = ${userId} AND withdrawalRequests.status IS NULL;`)
+            const withdrawRequest = await knex.raw(`select withdrawalrequests.id as id from withdrawalrequests left join userinfo on userinfo.userId = withdrawalrequests.userId left join users on users.id = withdrawalrequests.userId where withdrawalrequests.userId = ${userId} AND withdrawalrequests.status IS NULL;`)
             
             return { status: true, withdrawRequest: withdrawRequest[0] }
         } catch (error) {
@@ -698,7 +698,7 @@ order by sendletter.createdat
     async withdrawStatus(userId, status, newValue){
         try {
             await knex.update({credits: newValue}).where({userId}).table('userinfo')
-            await knex.update({ status }).where({ userId }).table('withdrawalRequests');
+            await knex.update({ status }).where({ userId }).table('withdrawalrequests');
             if (status == 'done') {
                 return {status: true, statusMsg: 'Retirada foi feita com sucesso! em caso de problema, por favor entre em contato com o suporte :)'}
             }else if(status=='deny'){
