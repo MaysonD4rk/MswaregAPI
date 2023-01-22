@@ -31,6 +31,7 @@ router.get('/getReports/:ideaId', AdminAuth,HomeController.getReportsByIdeaid);
 router.get('/getFeedback/:id/:userId', VerifyIdentity,HomeController.getFeedbackById);
 router.get('/generalSeach/:search', HomeController.generalSeach);
 router.get('/getSearchListUser/:offset/:userQuery', UserController.getSearchListUser);
+router.get('/getUsersRelations/:offset/:userId/:mode', UserController.getUsersRelations);
 router.get('/countPosts/:userId', HomeController.countPosts);
 router.get('/profilePageContentList/:userid/:offset', HomeController.profilePageContentList);
 router.get('/listWithdrawalRequests/:offset', AdminAuth,HomeController.listWithdrawalRequests);

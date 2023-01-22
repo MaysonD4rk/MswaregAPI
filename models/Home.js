@@ -460,17 +460,33 @@ class Home {
         console.log('o offset é: '+offset)
         try {
 
-            let result = await knex.raw(`SELECT allowFeedback,count(gameideainteraction.liked) as likes ,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, createdAt, title, ideaSummary
+            let result = await knex.raw(`SELECT allowFeedback,count(gameideainteraction.liked) as likes ,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, sum(investment) as investment
                             FROM ${process.env.DATABASE}.gamesideas
                             left join gameideainteraction
 							on gamesideas.id = gameideainteraction.gameIdeaId
                             INNER JOIN ${process.env.DATABASE}.gamesideascontent
                             ON gamesideas.id = gamesideascontent.ideaId
+                             left JOIN investments on investments.gameideaid = gamesideascontent.ideaid
                             where title like "%${wildcard}%" AND gamesideas.isActive != 0
                             group by gamesideas.id
                             order by likes DESC
                             limit 8 offset ${offset}
                             ;`);
+
+                            /*
+                            
+                            SELECT allowFeedback,convert( ideaImage using utf8) as imageUrl ,gamesideas.id, gamesideas.userId, gamesideas.initialAmountRequired , categoryId, gamesideas.createdAt, title, ideaSummary, sum(investment) as investment
+
+                            FROM ${process.env.DATABASE}.gamesideas
+                            INNER JOIN ${process.env.DATABASE}.gamesideascontent
+                            ON gamesideas.id = gamesideascontent.ideaId
+                            left JOIN investments on investments.gameideaid = gamesideascontent.ideaid
+                            where gamesideas.isActive != 0
+                            group by gamesideas.id
+                            order by id DESC
+                            limit 8 offset ${offset}
+
+                            */
 
                             
 

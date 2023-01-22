@@ -489,6 +489,20 @@ class UserController{
         }
     }
 
+    async getUsersRelations(req, res){
+        const {offset, userId, mode} = req.params;
+
+        try {
+            var result = await User.getUsersRelations(offset, userId, mode);
+            console.log(result)
+            res.status(200);
+            res.json(result.result.followerFollowing[0]);
+            console.log(result);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 }
 
 module.exports = new UserController()

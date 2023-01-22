@@ -226,6 +226,53 @@ class User{
         }
     }
 
+    async getUsersRelations(offset, userId, mode){
+        if (mode == 'follower') {
+            try {
+                let followerFollowing = await knex.raw(`
+                select
+                follower_id, follower.username as followerUsername, convert(profilePhoto using utf8) as profilePhoto,following_id, following.username as followingUsername
+                from relations
+                inner join users as follower on follower.id = follower_id
+                left join users as following on following.id = following_id
+                left join userinfo on userId = following_id
+                where following_id = ${userId}
+                limit 20 offset ${offset}
+                ;
+                `)
+    
+                console.log(followerFollowing)
+    
+                return { status: true, result: { followerFollowing } }
+    
+            } catch (error) {
+                return { status: false, error }
+            }
+            
+        }else if(mode == 'following'){
+            try {
+                let followerFollowing = await knex.raw(`
+                select
+                follower_id, follower.username as followerUsername, convert(profilePhoto using utf8) as profilePhoto,following_id, following.username as followingUsername
+                from relations
+                inner join users as follower on follower.id = follower_id
+                left join users as following on following.id = following_id
+                left join userinfo on userId = following_id
+                where follower_id = ${userId}
+                limit 20 offset ${offset}
+                ;
+                `)
+
+                console.log(followerFollowing)
+
+                return { status: true, result: { followerFollowing } }
+
+            } catch (error) {
+                return { status: false, error }
+            }
+        }
+    }
+
     async followUser(userId, followingId){
 
         try {
