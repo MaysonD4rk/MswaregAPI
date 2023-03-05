@@ -4,8 +4,9 @@ const UserController = require('../controllers/UserController');
 const AdminAuth = require('../middleware/AdminAuth');
 const VerifyIdentity = require('../middleware/UserIdentityConfirm')
 const HomeController = require('../controllers/HomeController');
+const MusclePointsController = require('../controllers/MusclePointsController');
 
-
+//MSWAREG API
 router.post('/user', UserController.create);
 router.get('/user/:id', UserController.findUser);
 router.delete('/user/:id', AdminAuth,UserController.remove);
@@ -64,5 +65,25 @@ router.put('/releaseIdea', AdminAuth, HomeController.releaseIdea);
 router.put('/withdrawstatus', AdminAuth, HomeController.withdrawStatus);
 router.put('/changeUsername', VerifyIdentity, UserController.changeUsername);
 router.put('/updatePersonalCode', VerifyIdentity, UserController.updatePersonalCode);
+
+
+//MUSCLEPOINTS API
+
+//TODO: colocar verificação de identidade na porra toda
+
+router.post('/musclePointsToken', MusclePointsController.createToken);
+router.post('/validateToken', MusclePointsController.validateToken)
+router.get('/getTokens', MusclePointsController.getTokens );
+router.get('/getTokenRelation/:userId', MusclePointsController.getTokenRelation);
+router.get('/getTokenByUserId/:userId', MusclePointsController.getTokenByUserId);
+router.get('/validateTokenLogin/:userId', MusclePointsController.validateTokenLogin);
+router.get('/getTrainLog/:userId', MusclePointsController.getTrainLog);
+router.get('/verifyIfIsExpiringToken', MusclePointsController.verifyIfIsExpiringToken);
+router.put('/trainLog', MusclePointsController.updateTrainLog)
+router.put('/freezyToken', MusclePointsController.freezyToken);
+router.put('/extendTokenTime', MusclePointsController.extendTokenTime);
+router.put('/updateTokenPrice', MusclePointsController.updateTokenPrice);
+router.put('/payBilling', MusclePointsController.payBilling)
+router.delete('/deleteToken/:userId/:tokenId', MusclePointsController.deleteTokenById);
 
 module.exports = router
