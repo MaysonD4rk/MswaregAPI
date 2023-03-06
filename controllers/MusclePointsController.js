@@ -117,7 +117,7 @@ class MusclePointsController{
                         }
                     }else{
                         res.status(200)
-                        res.json({ userRole: 'master-supplier', user})
+                        res.json({ userRole: 'master-supplier', user, verifyTokenRole: {result: []}})
                     }
                 }
             }else{
