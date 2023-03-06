@@ -305,12 +305,12 @@ class MusclePoints{
 
         try {
             
-            let verifyIfAlreadyExistsData = await knex.select('*').where({userId}).table('trainlog');
+            let verifyIfAlreadyExistsData = await knex.select('*').where({userId}).table('trainLog');
             if (verifyIfAlreadyExistsData.length>0) {
-                await knex.update({log: trainLog, updatedAt: new Date()}).where({userId}).table('trainlog');
+                await knex.update({log: trainLog, updatedAt: new Date()}).where({userId}).table('trainLog');
                 return {status: true, msg: 'updated'}
             }else{
-                await knex.insert({userId,log: trainLog, updatedAt: new Date() }).table('trainlog');
+                await knex.insert({userId,log: trainLog, updatedAt: new Date() }).table('trainLog');
                 return { status: true, msg: 'inserted' }
             }
 
