@@ -76,9 +76,9 @@ class MusclePoints{
             let supplierBilling = count.count*12.67;
 
             const updateBillingPrice = await knex('usingMuscleToken')
-                .innerJoin('muscleTokens', 'usingmuscletoken.tokenId', 'muscleTokens.tokenId')
+                .innerJoin('muscleTokens', 'usingMuscleToken.tokenId', 'muscleTokens.tokenId')
                 .where('muscleTokens.tokenOwnerId', userId)
-                .update('usingmuscletoken.billingPrice', newBillingPrice.toString());
+                .update('usingMuscleToken.billingPrice', newBillingPrice.toString());
             
             const updateTokenPrice = await knex.update({tokenPrice: (newTokenPrice).toString()}).where({tokenOwnerId: userId}).table('muscleTokens');
             const tokenById = await this.getTokenByUserId(userId);
@@ -109,7 +109,7 @@ class MusclePoints{
     async getTokenById(tokenId, userId){
         try {
             let result = await knex.select('*').where('muscleTokens.tokenId', '=', tokenId)
-            .innerJoin('usingMuscleToken', 'muscleTokens.tokenId', 'usingmuscletoken.tokenId')
+            .innerJoin('usingMuscleToken', 'muscleTokens.tokenId', 'usingMuscleToken.tokenId')
             .table('muscleTokens').first();
 
             let count = await knex('muscleTokens').where({tokenOwnerId: userId}).andWhere({frozenToken: false}).count('* as count').first();
@@ -152,7 +152,7 @@ class MusclePoints{
         try {
             let tokenRelation = await knex.select('username', 'muscleTokens.tokenId', 'token', 'tokenPrice', 'tokenOwnerId', 'tokenRole', 'frozenToken', 'tokenExpiresAt', 'usingUserId', 'billingPrice', 'payState')
                 .from('usingMuscleToken')
-                .rightJoin('muscleTokens', 'muscleTokens.tokenId', '=', 'usingmuscletoken.tokenId')
+                .rightJoin('muscleTokens', 'muscleTokens.tokenId', '=', 'usingMuscleToken.tokenId')
                 .leftJoin('users', 'users.id', '=', 'usingMuscleToken.usingUserId')
                 .where('muscleTokens.tokenOwnerId', '=', userId)
 
