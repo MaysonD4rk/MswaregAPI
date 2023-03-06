@@ -70,27 +70,55 @@ class MusclePointsController{
 
     async validateTokenLogin(req,res){
         const userId = req.params.userId;
-
+        const userIdSupplier = req.params.supplierId ? req.params.supplierId : false;
+        console.log(userId)
         try {
             const user = await User.findById(userId);
+            console.log(user)
             if (user.length>0) {
                 if (user[0].role != 1) {
                     const verifyTokenRole = await MusclePoints.getTokenByUserId(userId);
-                    const tokenById = await MusclePoints.getTokenById(verifyTokenRole.result[0].tokenId, userId);
-                    console.log(tokenById)
-                    if (verifyTokenRole.result[0].tokenRole ==  1) {
-                        res.status(200)
-                        res.json({ userRole: 'supplier', user, verifyTokenRole, count: tokenById.count })
-                        return
+                    if (verifyTokenRole.result.length>0){
+                        const tokenById = await MusclePoints.getTokenById(verifyTokenRole.result[0].tokenId, userId);
+                        console.log(tokenById)
+                        if (verifyTokenRole.result[0].tokenRole ==  1) {
+                            res.status(200)
+                            res.json({ userRole: 'supplier', user, verifyTokenRole, count: tokenById.count })
+                            return
+                        }else{
+                            res.status(200)
+                            res.json({ userRole: 'customer', verifyTokenRole })
+                            return 
+                        }
                     }else{
                         res.status(200)
                         res.json({ userRole: 'customer', verifyTokenRole })
                         return 
                     }
-                    
                 }else{
-                    res.status(200)
-                    res.json({ userRole: 'master-supplier', user})
+                    if (!!userIdSupplier) {
+                        console.log('o userIdSupplier é: '+userIdSupplier)
+                        const verifyTokenRole = await MusclePoints.getTokenByUserId(userIdSupplier);
+                        console.log(verifyTokenRole)
+                        if (verifyTokenRole.result.length > 0) {
+                            const tokenById = await MusclePoints.getTokenById(verifyTokenRole.result[0].tokenId, userIdSupplier);
+                            console.log(tokenById)
+                            if (verifyTokenRole.result[0].tokenRole == 1) {
+                                console.log('entrou aqui')
+                                res.status(200)
+                                res.json({ userRole: 'supplier', user, verifyTokenRole, count: tokenById.count })
+                                return
+                            }else{
+                                console.log('caiu aqui meh')
+                                res.status(200)
+                                res.json({ userRole: 'customer', verifyTokenRole })
+                                return
+                            }
+                        }
+                    }else{
+                        res.status(200)
+                        res.json({ userRole: 'master-supplier', user})
+                    }
                 }
             }else{
                 res.status(405)

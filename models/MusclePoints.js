@@ -184,13 +184,15 @@ class MusclePoints{
     async validateToken(userId,token){
         try {
             let result = await knex.select('*').where({token}).table('muscleTokens');
+            console.log('validate')
+            console.log(result[0].tokenPrice)
             if (result.length>0) {
                 let anyoneElseUsing = await knex.select('*').where({ tokenId: result[0].tokenId }).table('usingMuscleToken');
                 let areUusingToken = await knex.select('*').where({ usingUserId: userId }).table('usingMuscleToken');
                 
                 
                 if (!anyoneElseUsing.length>0) {
-                    await knex.insert({ usingUserId: userId, tokenId: result[0].tokenId, billingPrice: '12.67', payState: true }).table('usingMuscleToken');
+                    await knex.insert({ usingUserId: userId, tokenId: result[0].tokenId, billingPrice: (parseFloat(result[0].tokenPrice)+12.67).toString(), payState: true }).table('usingMuscleToken');
                     if (areUusingToken.length >= 1) {
                         await knex('muscletokens').delete().where({ tokenId: areUusingToken[0].tokenId })
                     }    

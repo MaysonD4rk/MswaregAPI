@@ -71,19 +71,19 @@ router.put('/updatePersonalCode', VerifyIdentity, UserController.updatePersonalC
 
 //TODO: colocar verificação de identidade na porra toda
 
-router.post('/musclePointsToken', MusclePointsController.createToken);
-router.post('/validateToken', MusclePointsController.validateToken)
-router.get('/getTokens', MusclePointsController.getTokens );
-router.get('/getTokenRelation/:userId', MusclePointsController.getTokenRelation);
+router.post('/musclePointsToken', VerifyIdentity, MusclePointsController.createToken);
+router.post('/validateToken', VerifyIdentity,MusclePointsController.validateToken)
+router.get('/getTokens',AdminAuth,MusclePointsController.getTokens );
+router.get('/getTokenRelation/:userId',MusclePointsController.getTokenRelation);
 router.get('/getTokenByUserId/:userId', MusclePointsController.getTokenByUserId);
-router.get('/validateTokenLogin/:userId', MusclePointsController.validateTokenLogin);
+router.get('/validateTokenLogin/:userId/:supplierId?', MusclePointsController.validateTokenLogin);
 router.get('/getTrainLog/:userId', MusclePointsController.getTrainLog);
 router.get('/verifyIfIsExpiringToken', MusclePointsController.verifyIfIsExpiringToken);
-router.put('/trainLog', MusclePointsController.updateTrainLog)
-router.put('/freezyToken', MusclePointsController.freezyToken);
-router.put('/extendTokenTime', MusclePointsController.extendTokenTime);
-router.put('/updateTokenPrice', MusclePointsController.updateTokenPrice);
-router.put('/payBilling', MusclePointsController.payBilling)
-router.delete('/deleteToken/:userId/:tokenId', MusclePointsController.deleteTokenById);
+router.put('/trainLog', VerifyIdentity, MusclePointsController.updateTrainLog)
+router.put('/freezyToken', VerifyIdentity, MusclePointsController.freezyToken);
+router.put('/extendTokenTime', VerifyIdentity, MusclePointsController.extendTokenTime);
+router.put('/updateTokenPrice', VerifyIdentity, MusclePointsController.updateTokenPrice);
+router.put('/payBilling', VerifyIdentity, MusclePointsController.payBilling)
+router.delete('/deleteToken/:userId/:tokenId', VerifyIdentity,MusclePointsController.deleteTokenById);
 
 module.exports = router
