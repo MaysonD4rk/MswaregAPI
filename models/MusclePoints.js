@@ -226,8 +226,8 @@ class MusclePoints{
             }
 
         } catch (error) {
-            res.status(406)
             console.log(error)
+            return {error}
         }
     }
 
@@ -315,8 +315,8 @@ class MusclePoints{
             }
 
         } catch (error) {
-            res.status(406)
             console.log(error)
+            return {error}
         }
 
 
