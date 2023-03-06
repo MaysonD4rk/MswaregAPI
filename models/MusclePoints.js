@@ -75,7 +75,7 @@ class MusclePoints{
 
             let supplierBilling = count.count*12.67;
 
-            const updateBillingPrice = await knex('usingmuscletoken')
+            const updateBillingPrice = await knex('usingMuscleToken')
                 .innerJoin('muscleTokens', 'usingmuscletoken.tokenId', 'muscleTokens.tokenId')
                 .where('muscleTokens.tokenOwnerId', userId)
                 .update('usingmuscletoken.billingPrice', newBillingPrice.toString());
@@ -88,7 +88,7 @@ class MusclePoints{
             }else{
                 supplierBilling = supplierBilling;
             }
-            const updateSupplierBilling = await knex.update({ billingPrice: supplierBilling }).where({ usingUserId: userId }).table('usingmuscletoken');
+            const updateSupplierBilling = await knex.update({ billingPrice: supplierBilling }).where({ usingUserId: userId }).table('usingMuscleToken');
             console.log(updateSupplierBilling)
             return {status: true};
         } catch (error) {
@@ -109,7 +109,7 @@ class MusclePoints{
     async getTokenById(tokenId, userId){
         try {
             let result = await knex.select('*').where('muscleTokens.tokenId', '=', tokenId)
-            .innerJoin('usingmuscletoken', 'muscleTokens.tokenId', 'usingmuscletoken.tokenId')
+            .innerJoin('usingMuscleToken', 'muscleTokens.tokenId', 'usingmuscletoken.tokenId')
             .table('muscleTokens').first();
 
             let count = await knex('muscleTokens').where({tokenOwnerId: userId}).andWhere({frozenToken: false}).count('* as count').first();
@@ -151,7 +151,7 @@ class MusclePoints{
     async getTokenRelation(userId) {
         try {
             let tokenRelation = await knex.select('username', 'muscleTokens.tokenId', 'token', 'tokenPrice', 'tokenOwnerId', 'tokenRole', 'frozenToken', 'tokenExpiresAt', 'usingUserId', 'billingPrice', 'payState')
-                .from('usingmuscletoken')
+                .from('usingMuscleToken')
                 .rightJoin('muscleTokens', 'muscleTokens.tokenId', '=', 'usingmuscletoken.tokenId')
                 .leftJoin('users', 'users.id', '=', 'usingMuscleToken.usingUserId')
                 .where('muscleTokens.tokenOwnerId', '=', userId)
@@ -266,7 +266,7 @@ class MusclePoints{
 
     async payBilling(userId){
         try {
-            let getBilling = await knex.select('*').where({usingUserId: userId}).table('usingmuscletoken').first();
+            let getBilling = await knex.select('*').where({usingUserId: userId}).table('usingMuscleToken').first();
                 getBilling.billingPrice
             let relation = await this.getTokenRelation(userId);
             let count = 0;
@@ -287,7 +287,7 @@ class MusclePoints{
             }else{
                 try {
                     await knex.update({ credits: ((parseFloat(currentBalance.credits) - parseFloat(getBilling.billingPrice)).toFixed(2)).toString() }).where({userId}).table('userinfo');
-                    await knex.update({ billingPrice: ((12.67*count).toFixed(2)).toString(), payState: true}).where({usinguserid: userId}).table('usingmuscletoken');
+                    await knex.update({ billingPrice: ((12.67*count).toFixed(2)).toString(), payState: true}).where({usinguserid: userId}).table('usingMuscleToken');
                     await this.extendTokenTime(getBilling.tokenId)
                     await this.verifyIfIsExpiringTokenById(getBilling.tokenId)
                     return {status: true, msg: 'pagamento realizado com sucesso!'}
@@ -336,7 +336,7 @@ class MusclePoints{
                 console.log(differenceDays)
                 if(differenceDays <= 5){
                     try {
-                        await knex.update({payState: false}).where({tokenId: i.tokenId}).table('usingmuscletoken');
+                        await knex.update({payState: false}).where({tokenId: i.tokenId}).table('usingMuscleToken');
 
                     } catch (error) {
                         console.log(error)
@@ -369,7 +369,7 @@ class MusclePoints{
                 const differenceDays = Math.ceil(differenceMs / daysMs); // arredonda para cima
                 if (differenceDays <= 5) {
                     try {
-                        await knex.update({ payState: false }).where({ tokenId: verifyExpiresDate.tokenId }).table('usingmuscletoken');
+                        await knex.update({ payState: false }).where({ tokenId: verifyExpiresDate.tokenId }).table('usingMuscleToken');
 
                     } catch (error) {
                         console.log(error)
