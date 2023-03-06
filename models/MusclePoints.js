@@ -395,9 +395,8 @@ class MusclePoints{
             console.log(trainLog)
             return {status: true, result: trainLog}
         } catch (error) {
-            res.status(406)
             console.log(error)
-            return {status: false}
+            return {status: false, error}
         }
     }
 
