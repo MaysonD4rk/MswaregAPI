@@ -116,8 +116,9 @@ class MusclePointsController{
                             }
                         }
                     }else{
+                        const verifyTokenRole = await MusclePoints.getTokenByUserId(userId);
                         res.status(200)
-                        res.json({ userRole: 'master-supplier', user, verifyTokenRole: {result: []}})
+                        res.json({ userRole: 'master-supplier', user, verifyTokenRole})
                     }
                 }
             }else{
