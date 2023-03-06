@@ -65,7 +65,7 @@ class MusclePoints{
     async updateTokenPrice(newTokenPrice, userId){
 
         try {
-            const count = await knex('muscletokens').where({ tokenOwnerId: userId }).andWhere({frozenToken: false}).count('* as count').first();
+            const count = await knex('muscleTokens').where({ tokenOwnerId: userId }).andWhere({frozenToken: false}).count('* as count').first();
             let newBillingPrice;
             if (count.count == 0) {
                 newBillingPrice = 12.67
@@ -76,11 +76,11 @@ class MusclePoints{
             let supplierBilling = count.count*12.67;
 
             const updateBillingPrice = await knex('usingmuscletoken')
-                .innerJoin('muscletokens', 'usingmuscletoken.tokenId', 'muscletokens.tokenId')
-                .where('muscletokens.tokenOwnerId', userId)
+                .innerJoin('muscleTokens', 'usingmuscletoken.tokenId', 'muscleTokens.tokenId')
+                .where('muscleTokens.tokenOwnerId', userId)
                 .update('usingmuscletoken.billingPrice', newBillingPrice.toString());
             
-            const updateTokenPrice = await knex.update({tokenPrice: (newTokenPrice).toString()}).where({tokenOwnerId: userId}).table('muscletokens');
+            const updateTokenPrice = await knex.update({tokenPrice: (newTokenPrice).toString()}).where({tokenOwnerId: userId}).table('muscleTokens');
             const tokenById = await this.getTokenByUserId(userId);
             if (parseFloat(tokenById.result[0].billingPrice) > supplierBilling){
                 supplierBilling = tokenById.result[0].billingPrice
@@ -108,8 +108,8 @@ class MusclePoints{
 
     async getTokenById(tokenId, userId){
         try {
-            let result = await knex.select('*').where('muscletokens.tokenId', '=', tokenId)
-            .innerJoin('usingmuscletoken', 'muscletokens.tokenId', 'usingmuscletoken.tokenId')
+            let result = await knex.select('*').where('muscleTokens.tokenId', '=', tokenId)
+            .innerJoin('usingmuscletoken', 'muscleTokens.tokenId', 'usingmuscletoken.tokenId')
             .table('muscleTokens').first();
 
             let count = await knex('muscleTokens').where({tokenOwnerId: userId}).andWhere({frozenToken: false}).count('* as count').first();
@@ -121,7 +121,7 @@ class MusclePoints{
 
     async getTokenByIdwithoutInner(tokenId, userId) {
         try {
-            let result = await knex.select('*').where('muscletokens.tokenId', '=', tokenId)
+            let result = await knex.select('*').where('muscleTokens.tokenId', '=', tokenId)
                 .table('muscleTokens').first();
 
             let count = await knex('muscleTokens').where({ tokenOwnerId: userId }).andWhere({ frozenToken: false }).count('* as count').first();
@@ -152,7 +152,7 @@ class MusclePoints{
         try {
             let tokenRelation = await knex.select('username', 'muscleTokens.tokenId', 'token', 'tokenPrice', 'tokenOwnerId', 'tokenRole', 'frozenToken', 'tokenExpiresAt', 'usingUserId', 'billingPrice', 'payState')
                 .from('usingmuscletoken')
-                .rightJoin('muscletokens', 'muscletokens.tokenId', '=', 'usingmuscletoken.tokenId')
+                .rightJoin('muscleTokens', 'muscleTokens.tokenId', '=', 'usingmuscletoken.tokenId')
                 .leftJoin('users', 'users.id', '=', 'usingMuscleToken.usingUserId')
                 .where('muscleTokens.tokenOwnerId', '=', userId)
 
@@ -170,7 +170,7 @@ class MusclePoints{
                 .select(['id','username', 'muscleTokens.tokenId', 'token', 'tokenPrice', 'tokenOwnerId', 'tokenRole', 'frozenToken', 'tokenExpiresAt', 'usingUserId', 'billingPrice', 'payState'])
                 .from('users')
                 .join('usingMuscleToken', 'users.id', 'usingMuscleToken.usingUserId')
-                .join('muscleTokens', 'usingMuscleToken.tokenId', 'muscletokens.tokenId')
+                .join('muscleTokens', 'usingMuscleToken.tokenId', 'muscleTokens.tokenId')
                 .where('id', '=', userId)
                 
 
@@ -194,12 +194,12 @@ class MusclePoints{
                 if (!anyoneElseUsing.length>0) {
                     await knex.insert({ usingUserId: userId, tokenId: result[0].tokenId, billingPrice: (parseFloat(result[0].tokenPrice)+12.67).toString(), payState: true }).table('usingMuscleToken');
                     if (areUusingToken.length >= 1) {
-                        await knex('muscletokens').delete().where({ tokenId: areUusingToken[0].tokenId })
+                        await knex('muscleTokens').delete().where({ tokenId: areUusingToken[0].tokenId })
                     }    
                     return { stauts: true }
                 }else{
                     if (areUusingToken.length > 1) {
-                        await knex('muscletokens').delete().where({ tokenId: areUusingToken[0].tokenId })
+                        await knex('muscleTokens').delete().where({ tokenId: areUusingToken[0].tokenId })
                     } 
                     return { status: false }
                 }
@@ -216,12 +216,12 @@ class MusclePoints{
         try {
             if (supplier) {
                 console.log('pssss')
-                let update = await knex.update({ frozenToken: freezyStatus }).where({ tokenOwnerId: userId }).orWhere({tokenId}).table('muscletokens');
+                let update = await knex.update({ frozenToken: freezyStatus }).where({ tokenOwnerId: userId }).orWhere({tokenId}).table('muscleTokens');
                 console.log(update.toString());
                 return { status: true, msg: 'frozen' }
             }else{
                 console.log('pssss2')
-                await knex.update({ frozenToken: freezyStatus }).where({ tokenId }).table('muscletokens');
+                await knex.update({ frozenToken: freezyStatus }).where({ tokenId }).table('muscleTokens');
                 return { status: true, msg: 'frozen' }
             }
 
@@ -235,13 +235,13 @@ class MusclePoints{
     async extendTokenTime(tokenId){
         
         try {
-            const currentTokenTime = await knex.select('tokenExpiresAt').where({tokenId}).table('muscletokens').first()
+            const currentTokenTime = await knex.select('tokenExpiresAt').where({tokenId}).table('muscleTokens').first()
 
             if (new Date(currentTokenTime.tokenExpiresAt).getTime() > Date.now()) {
-                await knex.update({ tokenExpiresAt: new Date(+(currentTokenTime.tokenExpiresAt.getTime() + 2592000000))}).where({tokenId}).table('muscletokens')
+                await knex.update({ tokenExpiresAt: new Date(+(currentTokenTime.tokenExpiresAt.getTime() + 2592000000))}).where({tokenId}).table('muscleTokens')
                 return {status: true}
             }else{
-                await knex.update({ tokenExpiresAt: new Date(Date.now() + 2592000000) }).where({ tokenId }).table('muscletokens')
+                await knex.update({ tokenExpiresAt: new Date(Date.now() + 2592000000) }).where({ tokenId }).table('muscleTokens')
                 return { status: true }
             }
 
@@ -256,7 +256,7 @@ class MusclePoints{
 
         tokenId = parseInt(tokenId)
         try {
-            await knex('muscletokens').delete().where({tokenId})
+            await knex('muscleTokens').delete().where({tokenId})
             return {status: true}
         } catch (error) {
             console.log(error)
@@ -324,7 +324,7 @@ class MusclePoints{
 
     async verifyIfIsExpiringToken(){
         try {
-            let verifyExpiresDate = await knex.select(['tokenId', 'tokenExpiresAt']).table('muscletokens');
+            let verifyExpiresDate = await knex.select(['tokenId', 'tokenExpiresAt']).table('muscleTokens');
             console.log(verifyExpiresDate);
 
             verifyExpiresDate.forEach(async i=>{
@@ -343,7 +343,7 @@ class MusclePoints{
                     }
                 }else if(differenceDays < 0){
                     try {
-                        await knex.update({ frozenToken: true }).where({ tokenId: i.tokenId }).table('muscletokens');
+                        await knex.update({ frozenToken: true }).where({ tokenId: i.tokenId }).table('muscleTokens');
                     } catch (error) {
                         console.log(error)
                     }
@@ -358,7 +358,7 @@ class MusclePoints{
 
     async verifyIfIsExpiringTokenById(tokenId){
         try {
-            let verifyExpiresDate = await knex.select(['tokenId', 'tokenExpiresAt']).where({tokenId}).table('muscletokens').first();
+            let verifyExpiresDate = await knex.select(['tokenId', 'tokenExpiresAt']).where({tokenId}).table('muscleTokens').first();
             console.log(verifyExpiresDate);
             console.log('entrei aqui')
 
@@ -376,7 +376,7 @@ class MusclePoints{
                     }
                 } else if (differenceDays < 0) {
                     try {
-                        await knex.update({ frozenToken: true }).where({ tokenId: verifyExpiresDate.tokenId }).table('muscletokens');
+                        await knex.update({ frozenToken: true }).where({ tokenId: verifyExpiresDate.tokenId }).table('muscleTokens');
                     } catch (error) {
                         console.log(error)
                     }
