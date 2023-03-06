@@ -391,7 +391,7 @@ class MusclePoints{
 
     async getTrainLog(userId){
         try {
-            const trainLog = await knex.select('*').where({userId}).table('trainlog');
+            const trainLog = await knex.select('*').where({userId}).table('trainLog');
             console.log(trainLog)
             return {status: true, result: trainLog}
         } catch (error) {
