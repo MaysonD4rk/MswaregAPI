@@ -378,7 +378,7 @@ class Home {
                                         .first()
                 
                 console.log(userCode.credits)
-                await knex.update({credits: `${parseFloat(parseFloat(userCode.credits)+ ((credits*1)/100))}`}).where({userId: userCode.id}).table('userinfo');
+                await knex.update({credits: (parseFloat(parseFloat(userCode.credits)+ ((credits*1)/100)).toFixed(2)).toString()}).where({userId: userCode.id}).table('userinfo');
                 
 
                 return { status: true, msg: "doado com sucesso" }
