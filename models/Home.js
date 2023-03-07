@@ -354,7 +354,7 @@ class Home {
         console.log(credits)
 
         try {
-            await knex.update({credits: `${credits}`}).where({userId}).table('userinfo');
+            await knex.update({credits: (credits.toFixed(2)).toString()}).where({userId}).table('userinfo');
             return {status: true, msg: "atualizado com sucesso"}
         } catch (error) {
             return { status: true, msg: error }
