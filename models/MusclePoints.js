@@ -55,7 +55,7 @@ class MusclePoints{
 
         
         try {
-            await knex.insert({ tokenOwnerId: userId, tokenRole: tokenRole, token, tokenPrice, frozenToken: false, tokenExpiresAt: tokenExpiresDate }).table('muscleTokens');
+            await knex.insert({ tokenOwnerId: userId, tokenRole: tokenRole, token, tokenPrice: tokenPrice.toString(), frozenToken: false, tokenExpiresAt: tokenExpiresDate }).table('muscleTokens');
             return {stauts: true, token}
         } catch (error) {
             console.log(error)

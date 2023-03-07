@@ -261,6 +261,7 @@ class HomeController{
             var result = await User.getCredits(userId)
             
             newValue = (result.result[0].credits-credits)
+            console.log(newValue);
 
             if (newValue < 0 || newValue >= result.result[0].credits) {
                 res.status(406)
