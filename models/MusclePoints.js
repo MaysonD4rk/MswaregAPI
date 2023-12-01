@@ -172,6 +172,7 @@ class MusclePoints{
                 .join('usingMuscleToken', 'users.id', 'usingMuscleToken.usingUserId')
                 .join('muscleTokens', 'usingMuscleToken.tokenId', 'muscleTokens.tokenId')
                 .where('id', '=', userId)
+            
                 
 
             return { stauts: true, result }

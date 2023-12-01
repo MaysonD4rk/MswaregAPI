@@ -37,6 +37,7 @@ class MusclePointsController{
     async validateToken(req, res){
         const userId = req.body.userId
         const token = req.body.token
+        console.log('validateToken')
         try {
             let validate = await MusclePoints.validateToken(userId, token);
             res.status(200)
@@ -71,10 +72,9 @@ class MusclePointsController{
     async validateTokenLogin(req,res){
         const userId = req.params.userId;
         const userIdSupplier = req.params.supplierId ? req.params.supplierId : false;
-        console.log(userId)
+        console.log('validateTokenLogin')
         try {
             const user = await User.findById(userId);
-            console.log(user)
             if (user.length>0) {
                 if (user[0].role != 1) {
                     const verifyTokenRole = await MusclePoints.getTokenByUserId(userId);
@@ -96,6 +96,7 @@ class MusclePointsController{
                         return 
                     }
                 }else{
+                    
                     if (!!userIdSupplier) {
                         console.log('o userIdSupplier é: '+userIdSupplier)
                         const verifyTokenRole = await MusclePoints.getTokenByUserId(userIdSupplier);
@@ -116,7 +117,10 @@ class MusclePointsController{
                             }
                         }
                     }else{
+                        console.log('caiu no master')
                         const verifyTokenRole = await MusclePoints.getTokenByUserId(userId);
+                        console.log(userId)
+                        console.log(verifyTokenRole)
                         res.status(200)
                         res.json({ userRole: 'master-supplier', user, verifyTokenRole})
                     }
